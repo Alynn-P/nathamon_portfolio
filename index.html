@@ -596,7 +596,7 @@
               <span class="tag">Business Strategy</span>
             </div>
           </div>
-          <a href="#" class="proj-link">View Insight Deck →</a>
+          <a href="#" class="proj-link" onclick="openDeck();return false;">View Insight Deck →</a>
         </div>
         <div class="proj-visual">
           <canvas id="proj1-canvas"></canvas>
@@ -623,7 +623,7 @@
               <span class="tag">Q4 Planning</span>
             </div>
           </div>
-          <a href="#" class="proj-link">View Dashboard →</a>
+          <a href="#" class="proj-link" onclick="openDeck2();return false;">View Dashboard →</a>
         </div>
         <div class="proj-visual">
           <canvas id="proj2-canvas"></canvas>
@@ -650,7 +650,7 @@
               <span class="tag">Luxury Retail</span>
             </div>
           </div>
-          <a href="#" class="proj-link">View Workflow →</a>
+          <a href="#" class="proj-link" onclick="openDeck3();return false;">View Workflow →</a>
         </div>
         <div class="proj-visual">
           <canvas id="proj3-canvas"></canvas>
@@ -685,7 +685,7 @@
               🔴 AVOID — high loss risk
             </div>
           </div>
-          <a href="#" class="proj-link" style="margin-top:20px;">Explore System →</a>
+          <a href="#" class="proj-link" style="margin-top:20px;" onclick="openDeck4();return false;">Explore System →</a>
         </div>
         <div class="proj-visual" style="background:#040810;">
           <canvas id="proj4-canvas"></canvas>
@@ -1190,5 +1190,1679 @@ ScrollTrigger.create({
 });
 
 </script>
+
+<!-- ============================================================
+     INSIGHT DECK MODAL — Project 01 · Plan B OOH
+     ============================================================ -->
+<style>
+/* Overlay */
+#deck-overlay {
+  display:none; position:fixed; inset:0; z-index:1000;
+  background:rgba(2,4,10,0.92); backdrop-filter:blur(6px);
+  overflow-y:auto; overscroll-behavior:contain;
+}
+#deck-overlay.open { display:block; }
+
+/* Close button */
+#deck-close {
+  position:fixed; top:22px; right:28px; z-index:1100;
+  font-family:var(--font-mono); font-size:11px; letter-spacing:.15em;
+  color:var(--muted); background:var(--card); border:1px solid var(--border);
+  padding:8px 18px; cursor:pointer; transition:color .2s,border-color .2s;
+  display:none;
+}
+#deck-close:hover { color:var(--accent); border-color:var(--accent); }
+#deck-overlay.open ~ #deck-close { display:block; }
+
+/* Deck wrapper */
+.deck {
+  max-width:860px; margin:0 auto; padding:60px 32px 100px;
+  font-family:var(--font-head);
+}
+
+/* Slide */
+.slide {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:6px; margin-bottom:24px; overflow:hidden;
+  position:relative;
+}
+.slide::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2),transparent);
+}
+.slide-inner { padding:44px 48px; }
+.slide-label {
+  font-family:var(--font-mono); font-size:9px; letter-spacing:.22em;
+  color:var(--accent); text-transform:uppercase; margin-bottom:10px;
+  display:flex; align-items:center; gap:10px;
+}
+.slide-label::after { content:''; display:block; width:28px; height:1px; background:var(--accent); opacity:.5; }
+.slide-title {
+  font-size:clamp(22px,3vw,34px); font-weight:800; line-height:1.1;
+  letter-spacing:-.01em; margin-bottom:8px;
+}
+.slide-sub {
+  font-family:var(--font-mono); font-size:11px; color:var(--muted);
+  letter-spacing:.1em; margin-bottom:24px;
+}
+.slide-body {
+  font-family:var(--font-mono); font-size:12px; color:var(--muted);
+  line-height:1.75; max-width:620px;
+}
+
+/* Cover slide */
+.slide-cover { background:linear-gradient(135deg,#050c1a,#080f20); text-align:center; }
+.slide-cover .slide-inner { padding:64px 48px; }
+.cover-icon { font-size:48px; margin-bottom:20px; }
+.cover-title {
+  font-size:clamp(30px,5vw,52px); font-weight:800;
+  background:linear-gradient(135deg,#fff,var(--accent2),var(--accent));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  margin-bottom:12px; line-height:1.05;
+}
+.cover-role { font-family:var(--font-mono); font-size:11px; color:var(--muted); letter-spacing:.18em; }
+.cover-divider { width:60px; height:1px; background:var(--accent); margin:24px auto; }
+.cover-desc { font-size:15px; color:var(--muted); line-height:1.7; max-width:480px; margin:0 auto; }
+
+/* Seasonal chart (CSS-only bars) */
+.season-chart { margin-top:28px; }
+.season-year-row { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.sy-label { font-family:var(--font-mono); font-size:10px; color:var(--muted); width:32px; flex-shrink:0; }
+.sy-bars { display:flex; gap:6px; flex:1; align-items:flex-end; height:56px; }
+.sy-bar {
+  flex:1; border-radius:2px 2px 0 0;
+  transition:opacity .2s;
+  position:relative;
+}
+.sy-bar:hover::after {
+  content:attr(data-val); position:absolute; top:-18px; left:50%; transform:translateX(-50%);
+  font-family:var(--font-mono); font-size:9px; color:var(--accent); white-space:nowrap;
+}
+.sy-bar.y21 { background:rgba(59,157,255,.55); }
+.sy-bar.y22 { background:rgba(74,240,176,.55); }
+.sy-bar.y23 { background:rgba(255,107,107,.55); }
+.quarter-labels { display:flex; gap:6px; margin-left:44px; }
+.quarter-labels span { flex:1; font-family:var(--font-mono); font-size:9px; color:var(--muted); text-align:center; letter-spacing:.05em; }
+.chart-legend { display:flex; gap:20px; margin-top:16px; margin-left:44px; flex-wrap:wrap; }
+.legend-item { display:flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:10px; color:var(--muted); }
+.legend-dot { width:10px; height:10px; border-radius:2px; }
+
+/* Key factors */
+.factors-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:24px; }
+.factor-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:4px; padding:24px;
+}
+.factor-num {
+  font-family:var(--font-mono); font-size:28px; font-weight:700;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  margin-bottom:10px;
+}
+.factor-head { font-size:14px; font-weight:700; margin-bottom:8px; }
+.factor-body { font-family:var(--font-mono); font-size:11px; color:var(--muted); line-height:1.65; }
+.factor-stat {
+  margin-top:12px; background:var(--surface); border:1px solid var(--border);
+  border-radius:2px; padding:8px 12px; font-family:var(--font-mono); font-size:10px;
+}
+.factor-stat strong { color:var(--accent); }
+
+/* Trend rows */
+.trend-row {
+  display:flex; align-items:center; gap:16px; padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+.trend-row:last-child { border-bottom:none; }
+.trend-icon { font-size:20px; width:32px; text-align:center; flex-shrink:0; }
+.trend-text { font-family:var(--font-mono); font-size:12px; color:var(--muted); line-height:1.6; flex:1; }
+.trend-badge {
+  font-family:var(--font-mono); font-size:9px; letter-spacing:.1em;
+  padding:3px 10px; border-radius:2px; flex-shrink:0;
+  text-transform:uppercase;
+}
+.badge-down { background:rgba(255,107,107,.12); border:1px solid rgba(255,107,107,.3); color:#ff6b6b; }
+.badge-up   { background:rgba(74,240,176,.12); border:1px solid rgba(74,240,176,.3); color:var(--accent); }
+.badge-warn { background:rgba(255,200,80,.1); border:1px solid rgba(255,200,80,.3); color:#ffc850; }
+
+/* Retail media */
+.retail-stat-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-top:24px; }
+.r-stat { background:var(--card); border:1px solid var(--border); border-radius:4px; padding:20px; text-align:center; }
+.r-stat .val { font-family:var(--font-hud,var(--font-mono)); font-size:28px; font-weight:800;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.r-stat .lbl { font-family:var(--font-mono); font-size:10px; color:var(--muted); margin-top:6px; letter-spacing:.08em; }
+
+/* Budget allocation mini bars */
+.alloc-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:24px; }
+.alloc-col-label { font-family:var(--font-mono); font-size:10px; color:var(--accent); letter-spacing:.12em; margin-bottom:12px; }
+.alloc-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.alloc-name { font-family:var(--font-mono); font-size:10px; color:var(--muted); width:110px; flex-shrink:0; }
+.alloc-bar-bg { flex:1; height:6px; background:var(--card); border-radius:3px; overflow:hidden; }
+.alloc-fill { height:100%; border-radius:3px; }
+.alloc-pct { font-family:var(--font-mono); font-size:10px; color:var(--muted); width:28px; text-align:right; flex-shrink:0; }
+
+/* Summary */
+.summary-tags { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+.sum-tag {
+  font-family:var(--font-mono); font-size:10px; letter-spacing:.12em;
+  padding:6px 14px; border-radius:2px; text-transform:uppercase;
+  border:1px solid var(--accent); color:var(--accent); background:rgba(74,240,176,.06);
+}
+
+/* Slide number */
+.slide-pg {
+  position:absolute; bottom:16px; right:20px;
+  font-family:var(--font-mono); font-size:9px; color:var(--border); letter-spacing:.1em;
+}
+
+/* Mobile */
+@media(max-width:640px){
+  .deck { padding:40px 16px 80px; }
+  .slide-inner { padding:28px 20px; }
+  .factors-grid, .retail-stat-row, .alloc-grid { grid-template-columns:1fr; }
+  .cover-title { font-size:28px; }
+}
+</style>
+
+<!-- Deck Overlay -->
+<div id="deck-overlay">
+  <div class="deck">
+
+    <!-- SLIDE 0 — Cover -->
+    <div class="slide slide-cover">
+      <div class="slide-inner">
+        <div class="cover-icon">📡</div>
+        <div class="cover-title">Seasonal OOH<br>Intelligence</div>
+        <div class="cover-role">PLAN B MEDIA · BI ANALYST (SALES-CENTRIC) · 2023–PRESENT</div>
+        <div class="cover-divider"></div>
+        <div class="cover-desc">Turning beverage market signals into OOH media strategies — from raw material costs to retail touchpoints.</div>
+      </div>
+      <div class="slide-pg">01 / 06</div>
+    </div>
+
+    <!-- SLIDE 1 — Role -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="slide-label">Context</div>
+        <div class="slide-title">The Role</div>
+        <div class="slide-sub">Plan B Media — Thailand's Largest OOH Provider</div>
+        <div class="slide-body">
+          At Plan B, I work as a Business Intelligence Analyst (Sales-centric), monitoring factors affecting monthly sales and turning data into insights.<br><br>
+          I support the sales team with analysis that helps them approach the right clients at the right time — turning numbers into strategies they can act on.
+        </div>
+      </div>
+      <div class="slide-pg">02 / 06</div>
+    </div>
+
+    <!-- SLIDE 2 — Seasonal Pattern -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="slide-label">Finding 01</div>
+        <div class="slide-title">Seasonal Pattern</div>
+        <div class="slide-sub">In Plan B's Revenue from Beverage Clients (2021–2023)</div>
+        <div class="slide-body" style="margin-bottom:20px;">
+          OOH revenue from beverage brands shows strong seasonality, especially in Q2 and Q4.
+          Q2 peaks due to summer campaigns; Q4 is prime time for product launches and festive marketing.
+          This trend aligns with beverage stock movement, where stocks typically rise in Q2.
+        </div>
+
+        <!-- CSS bar chart -->
+        <div class="season-chart">
+          <div class="season-year-row">
+            <span class="sy-label">2021</span>
+            <div class="sy-bars">
+              <div class="sy-bar y21" style="height:50%" data-val="Q1"></div>
+              <div class="sy-bar y21" style="height:80%" data-val="Q2 — Peak"></div>
+              <div class="sy-bar y21" style="height:55%" data-val="Q3"></div>
+              <div class="sy-bar y21" style="height:70%" data-val="Q4"></div>
+            </div>
+          </div>
+          <div class="season-year-row">
+            <span class="sy-label">2022</span>
+            <div class="sy-bars">
+              <div class="sy-bar y22" style="height:55%" data-val="Q1"></div>
+              <div class="sy-bar y22" style="height:90%" data-val="Q2 — Peak"></div>
+              <div class="sy-bar y22" style="height:62%" data-val="Q3"></div>
+              <div class="sy-bar y22" style="height:85%" data-val="Q4"></div>
+            </div>
+          </div>
+          <div class="season-year-row">
+            <span class="sy-label">2023</span>
+            <div class="sy-bars">
+              <div class="sy-bar y23" style="height:48%" data-val="Q1"></div>
+              <div class="sy-bar y23" style="height:76%" data-val="Q2 — Peak"></div>
+              <div class="sy-bar y23" style="height:52%" data-val="Q3"></div>
+              <div class="sy-bar y23" style="height:66%" data-val="Q4"></div>
+            </div>
+          </div>
+          <div class="quarter-labels">
+            <span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:rgba(59,157,255,.6)"></div>2021</div>
+            <div class="legend-item"><div class="legend-dot" style="background:rgba(74,240,176,.6)"></div>2022</div>
+            <div class="legend-item"><div class="legend-dot" style="background:rgba(255,107,107,.6)"></div>2023</div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-pg">03 / 06</div>
+    </div>
+
+    <!-- SLIDE 3 — 2 Key Factors -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="slide-label">Finding 02</div>
+        <div class="slide-title">2 Key Factors</div>
+        <div class="slide-sub">Driving Beverage OOH Growth in 2024</div>
+        <div class="factors-grid">
+          <div class="factor-card">
+            <div class="factor-num">01</div>
+            <div class="factor-head">Raw Material Cost Drop</div>
+            <div class="factor-body">Reduction in production costs increases Gross Profit Margin — giving beverage brands more budget to invest in OOH advertising.</div>
+            <div class="factor-stat"><strong>Sugar prices ↓ 27%</strong> from June 2023 peak</div>
+            <div class="factor-stat" style="margin-top:6px;"><strong>PET Resin cost ↓ 17.7%</strong></div>
+          </div>
+          <div class="factor-card">
+            <div class="factor-num">02</div>
+            <div class="factor-head">Alcohol Brand Workaround</div>
+            <div class="factor-body">Alcohol brands use non-alcoholic product lines to stay visible in ad-restricted categories — maintaining brand recall on OOH.</div>
+            <div class="factor-stat" style="margin-top:12px;">Example: <strong>Heineken 0.0</strong> — a non-alcoholic malt beverage used for awareness where direct alcohol advertising is restricted.</div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-pg">04 / 06</div>
+    </div>
+
+    <!-- SLIDE 4 — Market Shifts -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="slide-label">Finding 03</div>
+        <div class="slide-title">Market Shifts to Watch</div>
+        <div class="slide-sub">Sales Trends & Category Movement 2021–2024</div>
+
+        <div style="margin-top:8px;">
+          <div class="trend-row">
+            <div class="trend-icon">📉</div>
+            <div class="trend-text">Total beverage sales dropped sharply from 2022 to 2023, with early signs the decline may continue into 2024.</div>
+            <div class="trend-badge badge-down">Sales Drop</div>
+          </div>
+          <div class="trend-row">
+            <div class="trend-icon">🔀</div>
+            <div class="trend-text">Functional and soft drink brands are cutting OOH budgets, shifting focus toward digital platforms and performance-driven media.</div>
+            <div class="trend-badge badge-warn">Budget Shift</div>
+          </div>
+          <div class="trend-row">
+            <div class="trend-icon">📊</div>
+            <div class="trend-text">Budget allocation data (2022 vs 2023): Functional Drink share moved from 21% → 21% (flat); Soft Drink/Soda 53% → 56%; Energy Drink 6% → 9%; Coffee/Milk/Tea 19% → 14%; Water unchanged.</div>
+            <div class="trend-badge badge-warn">Reallocation</div>
+          </div>
+          <div class="trend-row">
+            <div class="trend-icon">🤝</div>
+            <div class="trend-text">In a market driven by relationships, we prioritize long-term value with loyal clients — deepening partnerships and aligning OOH strategies with evolving brand needs.</div>
+            <div class="trend-badge badge-up">Retention</div>
+          </div>
+        </div>
+
+        <!-- Budget allocation mini chart -->
+        <div class="alloc-grid" style="margin-top:28px;">
+          <div>
+            <div class="alloc-col-label">2022 ALLOCATION</div>
+            <div class="alloc-row"><span class="alloc-name">Soft Drink/Soda</span><div class="alloc-bar-bg"><div class="alloc-fill" style="width:53%;background:var(--accent2)"></div></div><span class="alloc-pct">53%</span></div>
+            <div class="alloc-row"><span class="alloc-name">Coffee/Milk/Tea</span><div class="alloc-bar-bg"><div class="alloc-fill" style="width:19%;background:var(--accent)"></div></div><span class="alloc-pct">19%</span></div>
+            <div class="alloc-row"><span class="alloc-name">Functional Drink</span><div class="alloc-bar-bg"><div class="alloc-fill" style="width:21%;background:var(--accent3)"></div></div><span class="alloc-pct">21%</span></div>
+            <div class="alloc-row"><span class="alloc-name">Energy Drink</span><div class="alloc-bar-bg"><div class="alloc-fill" style="width:6%;background:#ffc850"></div></div><span class="alloc-pct">6%</span></div>
+            <div class="alloc-row"><span class="alloc-name">Water</span><div class="alloc-bar-bg"><div class="alloc-fill" style="width:1%;background:var(--muted)"></div></div><span class="alloc-pct">1%</span></div>
+          </div>
+          <div>
+            <div class="alloc-col-label">2023 ALLOCATION</div>
+            <div class="alloc-row"><span class="alloc-name">Soft Drink/Soda</span><div class="alloc-bar-bg"><div class="alloc-fill" style="width:56%;background:var(--accent2)"></div></div><span class="alloc-pct">56%</span></div>
+            <div class="alloc-row"><span class="alloc-name">Coffee/Milk/Tea</span><div class="alloc-bar-bg"><div class="alloc-fill" style="width:14%;background:var(--accent)"></div></div><span class="alloc-pct">14%</span></div>
+            <div class="alloc-row"><span class="alloc-name">Functional Drink</span><div class="alloc-bar-bg"><div class="alloc-fill" style="width:21%;background:var(--accent3)"></div></div><span class="alloc-pct">21%</span></div>
+            <div class="alloc-row"><span class="alloc-name">Energy Drink</span><div class="alloc-bar-bg"><div class="alloc-fill" style="width:9%;background:#ffc850"></div></div><span class="alloc-pct">9%</span></div>
+            <div class="alloc-row"><span class="alloc-name">Water</span><div class="alloc-bar-bg"><div class="alloc-fill" style="width:1%;background:var(--muted)"></div></div><span class="alloc-pct">1%</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-pg">05 / 06</div>
+    </div>
+
+    <!-- SLIDE 5 — Retail Media & Summary -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="slide-label">Finding 04 · Summary</div>
+        <div class="slide-title">Retail Media &<br>The Integrated Approach</div>
+        <div class="slide-body" style="margin-bottom:0;">
+          Retail media saw a decline in 2023 — but recent research highlights its value when combined with other OOH formats.
+          A case study found that integrating retail media across <strong style="color:var(--text)">1,196 convenience stores in Bangkok</strong> with billboards, LED signage, and transit ads drove measurable results.
+        </div>
+        <div class="retail-stat-row">
+          <div class="r-stat"><div class="val">+14.6%</div><div class="lbl">Sales Uplift</div></div>
+          <div class="r-stat"><div class="val">1,196</div><div class="lbl">Stores in Bangkok</div></div>
+          <div class="r-stat"><div class="val">360°</div><div class="lbl">OOH Coverage</div></div>
+        </div>
+        <div class="slide-body" style="margin-top:20px;">
+          A well-orchestrated OOH strategy — spanning both in-store and outdoor touchpoints — can deliver real, measurable business impact. This confirms the integrated approach as the gold standard for beverage brands.
+        </div>
+        <div style="margin-top:28px; padding:20px 24px; background:var(--card); border:1px solid var(--border); border-radius:4px;">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--accent);letter-spacing:.15em;margin-bottom:10px;">PROJECT TAKEAWAY</div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--muted);line-height:1.7;">
+            This project demonstrates the ability to extract insights from market intelligence, align data with macroeconomic signals, and propose real-world business strategies that move clients to action.
+          </div>
+          <div class="summary-tags">
+            <span class="sum-tag">Analytical Thinking</span>
+            <span class="sum-tag">Data Visualization</span>
+            <span class="sum-tag">Workflow Design</span>
+          </div>
+        </div>
+      </div>
+      <div class="slide-pg">06 / 06</div>
+    </div>
+
+  </div><!-- /deck -->
+</div><!-- /deck-overlay -->
+
+<button id="deck-close" onclick="closeDeck()">✕ CLOSE DECK</button>
+
+<script>
+function openDeck() {
+  document.getElementById('deck-overlay').classList.add('open');
+  document.getElementById('deck-close').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  // Scroll deck to top
+  document.getElementById('deck-overlay').scrollTop = 0;
+  // Animate slides in
+  gsap.fromTo('#deck-overlay .slide',
+    { opacity: 0, y: 30 },
+    { opacity: 1, y: 0, duration: .5, stagger: .08, ease: 'power2.out', delay: .1 }
+  );
+}
+function closeDeck() {
+  document.getElementById('deck-overlay').classList.remove('open');
+  document.getElementById('deck-close').style.display = 'none';
+  document.body.style.overflow = '';
+}
+// Close on Escape key
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDeck(); });
+</script>
+
+
+<!-- ============================================================
+     INSIGHT DECK MODAL — Project 02 · L'Oréal Dashboard
+     ============================================================ -->
+<style>
+#deck2-overlay {
+  display:none; position:fixed; inset:0; z-index:1000;
+  background:rgba(2,4,10,0.92); backdrop-filter:blur(6px);
+  overflow-y:auto; overscroll-behavior:contain;
+}
+#deck2-overlay.open { display:block; }
+#deck2-close {
+  position:fixed; top:22px; right:28px; z-index:1100;
+  font-family:var(--font-mono); font-size:11px; letter-spacing:.15em;
+  color:var(--muted); background:var(--card); border:1px solid var(--border);
+  padding:8px 18px; cursor:pointer; transition:color .2s,border-color .2s;
+  display:none;
+}
+#deck2-close:hover { color:var(--accent); border-color:var(--accent); }
+
+/* Reuse .deck, .slide, .slide-* from deck 1 styles */
+
+/* YoY comparison bars */
+.yoy-row { display:flex; align-items:center; gap:14px; margin-bottom:10px; }
+.yoy-label { font-family:var(--font-mono); font-size:10px; color:var(--muted); width:36px; flex-shrink:0; }
+.yoy-bar-wrap { flex:1; display:flex; flex-direction:column; gap:4px; }
+.yoy-bar-row { display:flex; align-items:center; gap:8px; }
+.yoy-bar-name { font-family:var(--font-mono); font-size:9px; color:var(--muted); width:36px; flex-shrink:0; }
+.yoy-bar-bg { flex:1; height:10px; background:var(--card); border-radius:2px; overflow:hidden; }
+.yoy-bar-fill { height:100%; border-radius:2px; transition:width 1s ease; }
+.yoy-bar-val { font-family:var(--font-mono); font-size:9px; width:36px; text-align:right; flex-shrink:0; }
+
+/* Donut chart (CSS only) */
+.donut-wrap { display:grid; grid-template-columns:160px 1fr; gap:24px; align-items:center; margin-top:20px; }
+.donut-svg-wrap { position:relative; width:140px; height:140px; }
+.donut-svg-wrap svg { width:140px; height:140px; transform:rotate(-90deg); }
+.donut-center {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  text-align:center;
+}
+.donut-center .dc-val { font-family:var(--font-mono); font-size:18px; font-weight:700; color:var(--accent2); }
+.donut-center .dc-lbl { font-family:var(--font-mono); font-size:8px; color:var(--muted); letter-spacing:.08em; }
+.donut-legend { display:flex; flex-direction:column; gap:10px; }
+.dl-row { display:flex; align-items:center; gap:10px; }
+.dl-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.dl-name { font-family:var(--font-mono); font-size:11px; color:var(--muted); flex:1; }
+.dl-pct { font-family:var(--font-mono); font-size:11px; font-weight:700; }
+
+/* Monthly sparkline (CSS) */
+.sparkline-wrap { margin-top:20px; position:relative; }
+.spark-bars { display:flex; gap:3px; align-items:flex-end; height:60px; }
+.spark-bar { flex:1; border-radius:1px 1px 0 0; position:relative; transition:opacity .2s; }
+.spark-bar:hover { opacity:.8; }
+.spark-bar .tip {
+  display:none; position:absolute; bottom:100%; left:50%; transform:translateX(-50%);
+  background:var(--card); border:1px solid var(--border); padding:3px 7px;
+  font-family:var(--font-mono); font-size:8px; color:var(--text); white-space:nowrap;
+  margin-bottom:4px; pointer-events:none;
+}
+.spark-bar:hover .tip { display:block; }
+.spark-month-labels { display:flex; gap:3px; margin-top:4px; }
+.spark-month-labels span { flex:1; font-family:var(--font-mono); font-size:8px; color:var(--muted); text-align:center; }
+.spark-note {
+  font-family:var(--font-mono); font-size:10px; color:var(--muted); margin-top:10px;
+  padding:8px 12px; background:var(--card); border-left:2px solid var(--accent2); line-height:1.6;
+}
+
+/* Brand contribution */
+.brand-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:20px; }
+.brand-card {
+  background:var(--card); border:1px solid var(--border); border-radius:4px;
+  padding:16px 12px; text-align:center; transition:border-color .2s;
+}
+.brand-card:hover { border-color:var(--accent); }
+.brand-card.highlight { border-color:var(--accent3); background:rgba(255,107,107,.05); }
+.brand-card .bc-name { font-family:var(--font-mono); font-size:9px; color:var(--muted); letter-spacing:.1em; margin-bottom:6px; }
+.brand-card .bc-pct { font-family:var(--font-mono); font-size:22px; font-weight:700; }
+.brand-card .bc-note { font-family:var(--font-mono); font-size:9px; color:var(--muted); margin-top:4px; line-height:1.4; }
+
+/* Category split */
+.cat-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); }
+.cat-row:last-child { border-bottom:none; }
+.cat-icon { font-size:18px; width:28px; text-align:center; flex-shrink:0; }
+.cat-info { flex:1; }
+.cat-name { font-size:13px; font-weight:600; margin-bottom:2px; }
+.cat-note { font-family:var(--font-mono); font-size:10px; color:var(--muted); line-height:1.5; }
+.cat-pct { font-family:var(--font-mono); font-size:16px; font-weight:700; color:var(--accent2); width:40px; text-align:right; flex-shrink:0; }
+
+/* Strategy cards */
+.strat-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-top:20px; }
+.strat-card {
+  background:var(--card); border:1px solid var(--border); border-radius:4px; padding:20px 16px;
+}
+.strat-head { font-family:var(--font-mono); font-size:9px; letter-spacing:.15em; text-transform:uppercase; margin-bottom:10px; }
+.strat-head.root  { color:#ff6b6b; }
+.strat-head.opp   { color:var(--accent); }
+.strat-head.action{ color:var(--accent2); }
+.strat-body { font-family:var(--font-mono); font-size:11px; color:var(--muted); line-height:1.65; }
+
+@media(max-width:640px){
+  .brand-grid { grid-template-columns:1fr 1fr; }
+  .strat-grid { grid-template-columns:1fr; }
+  .donut-wrap { grid-template-columns:1fr; }
+}
+</style>
+
+<div id="deck2-overlay">
+  <div class="deck">
+
+    <!-- SLIDE 0 — Cover -->
+    <div class="slide slide-cover">
+      <div class="slide-inner">
+        <div class="cover-icon">📊</div>
+        <div class="cover-title">Cracking the<br>L'Oréal Decline</div>
+        <div class="cover-role">DATA VISUALIZATION · L'ORÉAL INTERVIEW CHALLENGE · OCT 2024</div>
+        <div class="cover-divider"></div>
+        <div class="cover-desc">5,000+ rows. Minimal slides. One compact dashboard that diagnosed a -33% YoY decline and proposed a Q4 recovery strategy.</div>
+      </div>
+      <div class="slide-pg">01 / 06</div>
+    </div>
+
+    <!-- SLIDE 1 — Context -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="slide-label">Context</div>
+        <div class="slide-title">The Challenge</div>
+        <div class="slide-sub">L'Oréal Interview Assignment</div>
+        <div class="slide-body">
+          As part of my interview with L'Oréal, I was asked to analyze a dataset of 5,000+ rows and propose a Q4 business direction.
+          With space at a premium, I focused on crafting a compact, insight-focused visualization that could speak clearly — without needing extra explanation.<br><br>
+          The output highlights my ability to prioritize what matters, synthesize insights, and guide business decisions through data.
+        </div>
+      </div>
+      <div class="slide-pg">02 / 06</div>
+    </div>
+
+    <!-- SLIDE 2 — YoY & Monthly Trends -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="slide-label">Finding 01</div>
+        <div class="slide-title">Cracking the Decline</div>
+        <div class="slide-sub">What's Behind 2024's Sales Slowdown?</div>
+
+        <!-- YoY headline -->
+        <div style="display:flex;gap:20px;margin-bottom:24px;flex-wrap:wrap;">
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:18px 24px;flex:1;min-width:140px;">
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:.12em;margin-bottom:6px;">YOY GROWTH</div>
+            <div style="font-family:var(--font-mono);font-size:34px;font-weight:700;color:#ff6b6b;">-33%</div>
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:4px;">8 months into 2024</div>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:18px 24px;flex:1;min-width:140px;">
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:.12em;margin-bottom:6px;">EXCEPTION MONTH</div>
+            <div style="font-family:var(--font-mono);font-size:34px;font-weight:700;color:var(--accent);">AUG</div>
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:4px;">Only month 2024 outperformed 2023</div>
+          </div>
+        </div>
+
+        <!-- Monthly sparkline 2024 vs 2023 -->
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:.12em;margin-bottom:10px;">MONTHLY REVENUE — 2023 vs 2024</div>
+        <div class="sparkline-wrap">
+          <div class="spark-bars">
+            <!-- 2023 (taller baseline) shown in muted, 2024 in accent -->
+            <!-- heights represent relative performance Jan–Nov -->
+            <div class="spark-bar" style="height:72%;background:rgba(59,157,255,.25);"><span class="tip">Jan 2023</span></div>
+            <div class="spark-bar" style="height:68%;background:rgba(59,157,255,.25);"><span class="tip">Feb 2023</span></div>
+            <div class="spark-bar" style="height:80%;background:rgba(59,157,255,.25);"><span class="tip">Mar 2023</span></div>
+            <div class="spark-bar" style="height:74%;background:rgba(59,157,255,.25);"><span class="tip">Apr 2023</span></div>
+            <div class="spark-bar" style="height:88%;background:rgba(59,157,255,.25);"><span class="tip">May 2023</span></div>
+            <div class="spark-bar" style="height:100%;background:rgba(59,157,255,.25);"><span class="tip">Jun 2023</span></div>
+            <div class="spark-bar" style="height:90%;background:rgba(59,157,255,.25);"><span class="tip">Jul 2023</span></div>
+            <div class="spark-bar" style="height:70%;background:rgba(59,157,255,.25);"><span class="tip">Aug 2023</span></div>
+            <div class="spark-bar" style="height:82%;background:rgba(59,157,255,.25);"><span class="tip">Sep 2023</span></div>
+            <div class="spark-bar" style="height:78%;background:rgba(59,157,255,.25);"><span class="tip">Oct 2023</span></div>
+            <div class="spark-bar" style="height:86%;background:rgba(59,157,255,.25);"><span class="tip">Nov 2023</span></div>
+          </div>
+          <div class="spark-bars" style="margin-top:4px;">
+            <div class="spark-bar" style="height:48%;background:rgba(255,107,107,.55);"><span class="tip">Jan 2024 ↓</span></div>
+            <div class="spark-bar" style="height:44%;background:rgba(255,107,107,.55);"><span class="tip">Feb 2024 ↓</span></div>
+            <div class="spark-bar" style="height:50%;background:rgba(255,107,107,.55);"><span class="tip">Mar 2024 ↓</span></div>
+            <div class="spark-bar" style="height:46%;background:rgba(255,107,107,.55);"><span class="tip">Apr 2024 ↓</span></div>
+            <div class="spark-bar" style="height:52%;background:rgba(255,107,107,.55);"><span class="tip">May 2024 ↓</span></div>
+            <div class="spark-bar" style="height:58%;background:rgba(255,107,107,.55);"><span class="tip">Jun 2024 ↓</span></div>
+            <div class="spark-bar" style="height:55%;background:rgba(255,107,107,.55);"><span class="tip">Jul 2024 ↓</span></div>
+            <div class="spark-bar" style="height:74%;background:rgba(74,240,176,.65);"><span class="tip">Aug 2024 ↑ Only outperformer</span></div>
+            <div class="spark-bar" style="height:48%;background:rgba(255,107,107,.55);"><span class="tip">Sep 2024 ↓</span></div>
+            <div class="spark-bar" style="height:50%;background:rgba(255,107,107,.55);"><span class="tip">Oct 2024 ↓</span></div>
+            <div class="spark-bar" style="height:54%;background:rgba(255,107,107,.55);"><span class="tip">Nov 2024 ↓</span></div>
+          </div>
+          <div class="spark-month-labels">
+            <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span>
+            <span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span>
+          </div>
+          <div style="display:flex;gap:20px;margin-top:8px;">
+            <div style="display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:9px;color:var(--muted);">
+              <div style="width:12px;height:6px;background:rgba(59,157,255,.4);border-radius:1px;"></div>2023 baseline
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:9px;color:var(--muted);">
+              <div style="width:12px;height:6px;background:rgba(255,107,107,.6);border-radius:1px;"></div>2024 actual
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:9px;color:var(--muted);">
+              <div style="width:12px;height:6px;background:rgba(74,240,176,.7);border-radius:1px;"></div>2024 outperformer
+            </div>
+          </div>
+        </div>
+        <div class="spark-note" style="margin-top:16px;">
+          Despite being 8 months into 2024, overall YoY growth remains at <strong style="color:#ff6b6b;">-33%</strong>, highlighting a significant decrease compared to the previous year. August is the lone exception — 2024 outperforms 2023 in that month only.
+        </div>
+      </div>
+      <div class="slide-pg">03 / 06</div>
+    </div>
+
+    <!-- SLIDE 3 — Brand & Category Breakdown -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="slide-label">Finding 02</div>
+        <div class="slide-title">Brand &amp; Category<br>Contribution</div>
+        <div class="slide-sub">Sales Contribution by Brand · Jan–Aug 2024</div>
+
+        <div class="brand-grid">
+          <div class="brand-card">
+            <div class="bc-name">BRAND A</div>
+            <div class="bc-pct" style="color:var(--accent2);">14%</div>
+            <div class="bc-note">Stable contributor</div>
+          </div>
+          <div class="brand-card">
+            <div class="bc-name">BRAND B</div>
+            <div class="bc-pct" style="color:var(--accent);">12%</div>
+            <div class="bc-note">Steady performance</div>
+          </div>
+          <div class="brand-card highlight">
+            <div class="bc-name">BRAND C</div>
+            <div class="bc-pct" style="color:#ff6b6b;">28%</div>
+            <div class="bc-note">⚠ Key driver of decline — dropped from 45% in 2023</div>
+          </div>
+          <div class="brand-card">
+            <div class="bc-name">BRAND D</div>
+            <div class="bc-pct" style="color:var(--muted);">24%</div>
+            <div class="bc-note">Largest single share</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;padding:16px 20px;background:var(--card);border:1px solid rgba(255,107,107,.25);border-radius:4px;">
+          <div style="font-family:var(--font-mono);font-size:9px;color:#ff6b6b;letter-spacing:.15em;margin-bottom:8px;">IMPACT OF BRAND C</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);line-height:1.7;">
+            A key contributor to this decline is <strong style="color:var(--text)">Brand C</strong>, which same period in 2023 (Jan–Aug) accounted for <strong style="color:#ff6b6b">45% of overall revenue</strong> but has now dropped to <strong style="color:#ff6b6b">28% in 2024</strong>. This sharp decline has significantly impacted total sales.
+          </div>
+        </div>
+
+        <div style="margin-top:20px;">
+          <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:.15em;margin-bottom:14px;">SALES CONTRIBUTION BY CATEGORY</div>
+          <div class="cat-row">
+            <div class="cat-icon">🧴</div>
+            <div class="cat-info">
+              <div class="cat-name">Skin Care</div>
+              <div class="cat-note">Largest contributor by category. Brand C's underperformance has negatively affected skincare overall — skincare remains the biggest category but is dragging the total down.</div>
+            </div>
+            <div class="cat-pct">61%</div>
+          </div>
+          <div class="cat-row">
+            <div class="cat-icon">🌸</div>
+            <div class="cat-info">
+              <div class="cat-name">Fragrance</div>
+              <div class="cat-note">Steady performer. Both fragrance and makeup have grown compared to last year.</div>
+            </div>
+            <div class="cat-pct">27%</div>
+          </div>
+          <div class="cat-row">
+            <div class="cat-icon">💄</div>
+            <div class="cat-info">
+              <div class="cat-name">Make Up</div>
+              <div class="cat-note">Exceptional growth — after 8 months into 2024 it is nearly at par with 2023 full revenue, needing only <strong style="color:var(--accent)">200K THB more</strong> to reach last year's total.</div>
+            </div>
+            <div class="cat-pct" style="color:var(--accent);">11%</div>
+          </div>
+          <div class="cat-row">
+            <div class="cat-icon">✨</div>
+            <div class="cat-info">
+              <div class="cat-name">Other</div>
+              <div class="cat-note">Minor contribution, no significant change.</div>
+            </div>
+            <div class="cat-pct">1%</div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-pg">04 / 06</div>
+    </div>
+
+    <!-- SLIDE 4 — Q4 Strategy -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="slide-label">Recommendation</div>
+        <div class="slide-title">Strategies for Q4</div>
+        <div class="slide-sub">Root Cause → Opportunity → Action</div>
+
+        <div class="strat-grid">
+          <div class="strat-card">
+            <div class="strat-head root">◈ Root Cause</div>
+            <div class="strat-body">
+              The decline in 2024 is mainly driven by the underperformance of the <strong style="color:var(--text)">skincare category</strong>. Consumers are shifting focus toward <strong style="color:var(--text)">ingredients and value for money</strong>, reducing interest in luxury skincare — especially with rising competition from domestic brands.
+            </div>
+          </div>
+          <div class="strat-card">
+            <div class="strat-head opp">◉ Opportunity</div>
+            <div class="strat-body">
+              Meanwhile, <strong style="color:var(--text)">makeup remains resilient</strong> — not just as a beauty product but also as a status symbol. Its emotional appeal and alignment with self-expression help sustain growth even in a tough environment.
+            </div>
+          </div>
+          <div class="strat-card">
+            <div class="strat-head action">⬡ Action</div>
+            <div class="strat-body">
+              To boost Q4 recovery, leverage the <strong style="color:var(--text)">makeup category as a hero segment</strong> — supported by market sentiment and its strong cultural positioning in Thailand.
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;padding:16px 20px;background:rgba(74,240,176,.04);border:1px solid rgba(74,240,176,.2);border-radius:4px;">
+          <div style="font-family:var(--font-mono);font-size:9px;color:var(--accent);letter-spacing:.15em;margin-bottom:8px;">MAKEUP SECTOR GROWTH SIGNAL</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);line-height:1.7;">
+            The makeup category stands out with <strong style="color:var(--text)">exceptional growth</strong>. After just 8 months into 2024, it is nearly at par with its 2023 revenue — needing only <strong style="color:var(--accent)">200K THB more</strong> to reach last year's total. This momentum makes it the ideal Q4 hero category.
+          </div>
+        </div>
+      </div>
+      <div class="slide-pg">05 / 06</div>
+    </div>
+
+    <!-- SLIDE 5 — Summary -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="slide-label">Summary</div>
+        <div class="slide-title">What This<br>Project Demonstrates</div>
+        <div class="slide-body" style="margin-bottom:24px;">
+          Using a limited dataset and slide constraint, I built a compact dashboard that visualized key trends across time, category, and brand contribution.<br><br>
+          The output highlights my ability to <strong style="color:var(--text)">prioritize what matters</strong>, synthesize insights, and guide business decisions through data — even under interview pressure.
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:24px;">
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px;text-align:center;">
+            <div style="font-family:var(--font-mono);font-size:26px;font-weight:700;color:#ff6b6b;">-33%</div>
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:.08em;">YOY DECLINE DIAGNOSED</div>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px;text-align:center;">
+            <div style="font-family:var(--font-mono);font-size:26px;font-weight:700;color:var(--accent2);">5K+</div>
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:.08em;">ROWS ANALYZED</div>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px;text-align:center;">
+            <div style="font-family:var(--font-mono);font-size:26px;font-weight:700;color:var(--accent);">200K</div>
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:.08em;">THB GAP TO CLOSE</div>
+          </div>
+        </div>
+
+        <div style="padding:20px 24px;background:var(--card);border:1px solid var(--border);border-radius:4px;">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--accent);letter-spacing:.15em;margin-bottom:10px;">PROJECT TAKEAWAY</div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--muted);line-height:1.7;">
+            Skincare's collapse masked makeup's growth. By isolating Brand C's contribution and spotting makeup's momentum, I could propose a focused, data-backed Q4 recovery strategy — not just describe the problem.
+          </div>
+          <div class="summary-tags">
+            <span class="sum-tag">Data Visualization</span>
+            <span class="sum-tag">YoY Analysis</span>
+            <span class="sum-tag">Category Strategy</span>
+          </div>
+        </div>
+      </div>
+      <div class="slide-pg">06 / 06</div>
+    </div>
+
+  </div><!-- /deck -->
+</div><!-- /deck2-overlay -->
+
+<button id="deck2-close" onclick="closeDeck2()">✕ CLOSE DECK</button>
+
+<script>
+function openDeck2() {
+  document.getElementById('deck2-overlay').classList.add('open');
+  document.getElementById('deck2-close').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  document.getElementById('deck2-overlay').scrollTop = 0;
+  gsap.fromTo('#deck2-overlay .slide',
+    { opacity: 0, y: 30 },
+    { opacity: 1, y: 0, duration: .5, stagger: .08, ease: 'power2.out', delay: .1 }
+  );
+}
+function closeDeck2() {
+  document.getElementById('deck2-overlay').classList.remove('open');
+  document.getElementById('deck2-close').style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if(e.key === 'Escape'){ closeDeck(); closeDeck2(); } });
+</script>
+
+
+<!-- ============================================================
+     INSIGHT DECK MODAL — Project 03 · CLV Segmentation
+     ============================================================ -->
+<style>
+#deck3-overlay {
+  display:none; position:fixed; inset:0; z-index:1000;
+  background:rgba(2,4,10,0.92); backdrop-filter:blur(6px);
+  overflow-y:auto; overscroll-behavior:contain;
+}
+#deck3-overlay.open { display:block; }
+#deck3-close {
+  position:fixed; top:22px; right:28px; z-index:1100;
+  font-family:var(--font-mono); font-size:11px; letter-spacing:.15em;
+  color:var(--muted); background:var(--card); border:1px solid var(--border);
+  padding:8px 18px; cursor:pointer; transition:color .2s,border-color .2s;
+  display:none;
+}
+#deck3-close:hover { color:var(--accent); border-color:var(--accent); }
+
+/* Step badge */
+.step-badge {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:48px; height:48px; border-radius:50%;
+  border:1px solid var(--border); background:var(--card);
+  font-family:var(--font-mono); font-size:11px; color:var(--accent);
+  letter-spacing:.05em; flex-shrink:0; font-weight:700;
+}
+
+/* Workflow steps */
+.workflow-steps { display:flex; flex-direction:column; gap:0; margin-top:28px; }
+.wf-step {
+  display:grid; grid-template-columns:48px 1fr;
+  gap:20px; padding:20px 0; border-bottom:1px solid var(--border2);
+  align-items:start; position:relative;
+}
+.wf-step:last-child { border-bottom:none; }
+.wf-step-connector {
+  position:absolute; left:23px; top:68px; bottom:-20px;
+  width:1px; background:linear-gradient(to bottom, var(--border), transparent);
+}
+.wf-step:last-child .wf-step-connector { display:none; }
+.wf-step-body {}
+.wf-step-title {
+  font-family:var(--font-hud, var(--font-mono)); font-size:17px; font-weight:700;
+  letter-spacing:.03em; margin-bottom:6px;
+}
+.wf-step-sub {
+  font-family:var(--font-mono); font-size:9px; color:var(--accent);
+  letter-spacing:.15em; text-transform:uppercase; margin-bottom:10px;
+}
+.wf-step-body-text {
+  font-family:var(--font-mono); font-size:11px; color:var(--muted); line-height:1.7;
+}
+.wf-bullets { list-style:none; margin-top:8px; display:flex; flex-direction:column; gap:5px; }
+.wf-bullets li {
+  font-family:var(--font-mono); font-size:11px; color:var(--muted);
+  display:flex; align-items:flex-start; gap:8px; line-height:1.55;
+}
+.wf-bullets li::before { content:'›'; color:var(--accent); flex-shrink:0; }
+
+/* CLV formula block */
+.clv-formula {
+  margin-top:16px; background:var(--card); border:1px solid var(--border);
+  border-radius:4px; padding:18px 20px;
+  font-family:var(--font-mono); font-size:12px; text-align:center;
+}
+.clv-formula .formula-line {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  flex-wrap:wrap;
+}
+.clv-formula .f-main {
+  font-size:20px; font-weight:700; color:var(--accent2); letter-spacing:.05em;
+}
+.clv-formula .f-eq { color:var(--muted); }
+.clv-formula .f-part { color:var(--text); }
+.clv-formula .f-note {
+  font-size:10px; color:var(--muted); margin-top:10px; line-height:1.6;
+}
+
+/* Scatter chart (CSS dots) */
+.scatter-wrap {
+  position:relative; margin-top:20px;
+  background:var(--card); border:1px solid var(--border); border-radius:4px;
+  padding:20px; height:280px; overflow:hidden;
+}
+.scatter-axis-x {
+  position:absolute; bottom:36px; left:40px; right:20px; height:1px;
+  background:var(--border);
+}
+.scatter-axis-y {
+  position:absolute; bottom:36px; left:40px; top:20px; width:1px;
+  background:var(--border);
+}
+.scatter-label-x {
+  position:absolute; bottom:12px; left:50%;
+  transform:translateX(-50%);
+  font-family:var(--font-mono); font-size:9px; color:var(--muted); letter-spacing:.1em;
+  text-align:center;
+}
+.scatter-label-y {
+  position:absolute; top:50%; left:4px;
+  transform:translateY(-50%) rotate(-90deg);
+  font-family:var(--font-mono); font-size:9px; color:var(--muted); letter-spacing:.1em;
+  white-space:nowrap;
+}
+.sdot {
+  position:absolute; border-radius:50%; transform:translate(-50%,50%);
+  transition:transform .2s, box-shadow .2s;
+  cursor:default;
+}
+.sdot:hover { transform:translate(-50%,50%) scale(1.5); }
+.sdot .sdot-tip {
+  display:none; position:absolute; bottom:120%; left:50%; transform:translateX(-50%);
+  background:var(--card); border:1px solid var(--border); border-radius:2px;
+  padding:4px 8px; font-family:var(--font-mono); font-size:9px; color:var(--text);
+  white-space:nowrap; pointer-events:none; z-index:10;
+}
+.sdot:hover .sdot-tip { display:block; }
+/* Group colors */
+.sdot.g1 { background:rgba(74,240,176,.85); box-shadow:0 0 6px var(--accent); }
+.sdot.g2 { background:rgba(59,157,255,.85); box-shadow:0 0 6px var(--accent2); }
+.sdot.g3 { background:rgba(100,120,160,.7); }
+.sdot.g4 { background:rgba(255,107,107,.85); box-shadow:0 0 6px #ff6b6b; }
+.sdot.g5 { background:rgba(255,200,80,.8); box-shadow:0 0 4px #ffc850; }
+
+/* Customer group cards */
+.group-cards { display:flex; flex-direction:column; gap:10px; margin-top:20px; }
+.group-card {
+  background:var(--card); border:1px solid var(--border2);
+  border-radius:4px; padding:18px 20px;
+  display:grid; grid-template-columns:14px 1fr; gap:14px; align-items:start;
+  transition:border-color .2s;
+}
+.group-card:hover { border-color:var(--border); }
+.group-card.highlight { border-color:rgba(100,120,160,.4); background:rgba(100,120,160,.05); }
+.gc-stripe { width:3px; height:100%; border-radius:2px; align-self:stretch; }
+.gc-body {}
+.gc-name { font-size:13px; font-weight:700; margin-bottom:4px; letter-spacing:.02em; }
+.gc-desc { font-family:var(--font-mono); font-size:10px; color:var(--muted); line-height:1.6; margin-bottom:8px; }
+.gc-actions { display:flex; flex-direction:column; gap:3px; }
+.gc-action {
+  font-family:var(--font-mono); font-size:10px; color:var(--muted);
+  display:flex; align-items:flex-start; gap:6px; line-height:1.5;
+}
+.gc-action::before { content:'→'; color:var(--accent); flex-shrink:0; }
+
+@media(max-width:640px){
+  .wf-step { grid-template-columns:36px 1fr; gap:12px; }
+  .step-badge { width:36px; height:36px; font-size:10px; }
+  .scatter-wrap { height:220px; }
+}
+</style>
+
+<div id="deck3-overlay">
+  <div class="deck">
+
+    <!-- SLIDE 0 — Cover -->
+    <div class="slide slide-cover">
+      <div class="slide-inner">
+        <div class="cover-icon">⬡</div>
+        <div class="cover-title">CLV Customer<br>Segmentation</div>
+        <div class="cover-role">WORKFLOW DESIGN · FINE JEWELRY BRAND · MAR 2023</div>
+        <div class="cover-divider"></div>
+        <div class="cover-desc">A 5-step workflow from raw data to actionable customer groups — built for a luxury brand where RFM simply doesn't work.</div>
+      </div>
+      <div class="slide-pg">01 / 05</div>
+    </div>
+
+    <!-- SLIDE 1 — Project Brief -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="slide-label">Context</div>
+        <div class="slide-title">The Brief</div>
+        <div class="slide-sub">Fine Jewelry Brand · Customer Segmentation Assignment</div>
+        <div class="slide-body">
+          While working at a fine jewelry brand, I was assigned to develop a customer segmentation model to support strategic planning tailored to each customer group.<br><br>
+          This project outlines my workflow — from understanding the data to generating actionable segmentation insights that the business could act on immediately.
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px;">
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px;">
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:.12em;margin-bottom:8px;">CHALLENGE</div>
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text);line-height:1.6;">Luxury price variance from thousands to millions THB makes standard RFM models unreliable</div>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px;">
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:.12em;margin-bottom:8px;">SOLUTION</div>
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text);line-height:1.6;">CLV-based segmentation capturing long-term value, purchasing intent and lifecycle behavior</div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-pg">02 / 05</div>
+    </div>
+
+    <!-- SLIDE 2 — 5-Step Workflow -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="slide-label">Methodology</div>
+        <div class="slide-title">The 5-Step<br>Workflow</div>
+        <div class="workflow-steps">
+
+          <div class="wf-step">
+            <div class="step-badge">01</div>
+            <div class="wf-step-body">
+              <div class="wf-step-sub">Data Foundation</div>
+              <div class="wf-step-title">Understand the Data</div>
+              <div class="wf-step-body-text">Review all available data dimensions to assess their potential value for segmentation.</div>
+              <ul class="wf-bullets">
+                <li>Bill amount</li>
+                <li>Product details</li>
+                <li>Order date</li>
+                <li>Customer information</li>
+                <li>Channel</li>
+              </ul>
+            </div>
+            <div class="wf-step-connector"></div>
+          </div>
+
+          <div class="wf-step">
+            <div class="step-badge">02</div>
+            <div class="wf-step-body">
+              <div class="wf-step-sub">Data Profiling</div>
+              <div class="wf-step-title">Explore the Metrics</div>
+              <div class="wf-step-body-text">Extract descriptive statistics from selected variables to build data intuition.</div>
+              <ul class="wf-bullets">
+                <li>Average spending per bill</li>
+                <li><strong style="color:var(--text)">Average lead time between bills</strong></li>
+                <li>First purchase gap</li>
+              </ul>
+              <div style="margin-top:10px;font-family:var(--font-mono);font-size:11px;color:var(--muted);line-height:1.6;">
+                These insights serve as a foundation for choosing suitable models and segmentation axes — ensuring any segmentation is grounded in real-world patterns.
+              </div>
+            </div>
+            <div class="wf-step-connector"></div>
+          </div>
+
+          <div class="wf-step">
+            <div class="step-badge">03</div>
+            <div class="wf-step-body">
+              <div class="wf-step-sub">Model Selection</div>
+              <div class="wf-step-title">Choose the Model — CLV</div>
+              <div class="clv-formula">
+                <div class="formula-line">
+                  <span class="f-main">CLV</span>
+                  <span class="f-eq">=</span>
+                  <span class="f-part">Margin</span>
+                  <span class="f-eq">×</span>
+                  <span class="f-part">Retention Rate</span>
+                  <span class="f-eq">÷</span>
+                  <span class="f-part">(1 + Discount Rate − Retention Rate)</span>
+                </div>
+                <div class="f-note">
+                  RFM was excluded due to the luxury variance in product price ranging from thousands to millions THB. In a fine jewelry business, purchase frequency does not necessarily reflect customer value. Instead, CLV-based segmentation was applied to capture long-term customer value, purchasing intent and lifecycle behavior more accurately.
+                </div>
+              </div>
+            </div>
+            <div class="wf-step-connector"></div>
+          </div>
+
+          <div class="wf-step">
+            <div class="step-badge">04</div>
+            <div class="wf-step-body">
+              <div class="wf-step-sub">Visualization</div>
+              <div class="wf-step-title">Plotted Scatter Chart</div>
+              <div class="wf-step-body-text" style="margin-bottom:14px;">
+                A scatter plot maps each customer's purchase consistency against their total customer value (CMV).
+              </div>
+              <!-- Scatter chart -->
+              <div class="scatter-wrap">
+                <div class="scatter-axis-x"></div>
+                <div class="scatter-axis-y"></div>
+                <div class="scatter-label-x">Avg. Growth on Bill (n vs. n-1) →</div>
+                <div class="scatter-label-y">CMV ↑</div>
+                <!-- Group 1: Jewelry Lovers — top right -->
+                <div class="sdot g1" style="width:10px;height:10px;left:78%;bottom:72%;"><div class="sdot-tip">Jewelry Lovers</div></div>
+                <div class="sdot g1" style="width:12px;height:12px;left:82%;bottom:78%;"><div class="sdot-tip">Jewelry Lovers</div></div>
+                <div class="sdot g1" style="width:9px;height:9px;left:75%;bottom:68%;"><div class="sdot-tip">Jewelry Lovers</div></div>
+                <div class="sdot g1" style="width:11px;height:11px;left:85%;bottom:82%;"><div class="sdot-tip">Jewelry Lovers</div></div>
+                <!-- Group 2: Potential Upscale — mid right -->
+                <div class="sdot g2" style="width:9px;height:9px;left:62%;bottom:55%;"><div class="sdot-tip">Potential Upscale</div></div>
+                <div class="sdot g2" style="width:10px;height:10px;left:68%;bottom:60%;"><div class="sdot-tip">Potential Upscale</div></div>
+                <div class="sdot g2" style="width:8px;height:8px;left:58%;bottom:50%;"><div class="sdot-tip">Potential Upscale</div></div>
+                <div class="sdot g2" style="width:11px;height:11px;left:72%;bottom:63%;"><div class="sdot-tip">Potential Upscale</div></div>
+                <!-- Group 3: Emerging — center cluster (most dots) -->
+                <div class="sdot g3" style="width:8px;height:8px;left:38%;bottom:35%;"><div class="sdot-tip">Emerging Segment</div></div>
+                <div class="sdot g3" style="width:7px;height:7px;left:44%;bottom:40%;"><div class="sdot-tip">Emerging Segment</div></div>
+                <div class="sdot g3" style="width:9px;height:9px;left:32%;bottom:30%;"><div class="sdot-tip">Emerging Segment</div></div>
+                <div class="sdot g3" style="width:8px;height:8px;left:50%;bottom:42%;"><div class="sdot-tip">Emerging Segment</div></div>
+                <div class="sdot g3" style="width:7px;height:7px;left:42%;bottom:28%;"><div class="sdot-tip">Emerging Segment</div></div>
+                <div class="sdot g3" style="width:9px;height:9px;left:36%;bottom:44%;"><div class="sdot-tip">Emerging Segment</div></div>
+                <div class="sdot g3" style="width:8px;height:8px;left:28%;bottom:36%;"><div class="sdot-tip">Emerging Segment</div></div>
+                <div class="sdot g3" style="width:7px;height:7px;left:48%;bottom:32%;"><div class="sdot-tip">Emerging Segment</div></div>
+                <!-- Group 4: Occasional High Spenders — top left -->
+                <div class="sdot g4" style="width:10px;height:10px;left:22%;bottom:68%;"><div class="sdot-tip">Occasional High Spenders</div></div>
+                <div class="sdot g4" style="width:9px;height:9px;left:18%;bottom:74%;"><div class="sdot-tip">Occasional High Spenders</div></div>
+                <div class="sdot g4" style="width:11px;height:11px;left:26%;bottom:64%;"><div class="sdot-tip">Occasional High Spenders</div></div>
+                <!-- Group 5: One-Time Buyers — bottom left -->
+                <div class="sdot g5" style="width:8px;height:8px;left:20%;bottom:18%;"><div class="sdot-tip">One-Time Buyers</div></div>
+                <div class="sdot g5" style="width:9px;height:9px;left:28%;bottom:14%;"><div class="sdot-tip">One-Time Buyers</div></div>
+                <div class="sdot g5" style="width:7px;height:7px;left:14%;bottom:22%;"><div class="sdot-tip">One-Time Buyers</div></div>
+                <div class="sdot g5" style="width:8px;height:8px;left:34%;bottom:16%;"><div class="sdot-tip">One-Time Buyers</div></div>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;">
+                <div style="display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:9px;color:var(--muted);"><div style="width:10px;height:10px;border-radius:50%;background:rgba(74,240,176,.85);"></div>Jewelry Lovers</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:9px;color:var(--muted);"><div style="width:10px;height:10px;border-radius:50%;background:rgba(59,157,255,.85);"></div>Potential Upscale</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:9px;color:var(--muted);"><div style="width:10px;height:10px;border-radius:50%;background:rgba(100,120,160,.7);"></div>Emerging</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:9px;color:var(--muted);"><div style="width:10px;height:10px;border-radius:50%;background:rgba(255,107,107,.85);"></div>Occasional High</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:9px;color:var(--muted);"><div style="width:10px;height:10px;border-radius:50%;background:rgba(255,200,80,.8);"></div>One-Time Buyers</div>
+              </div>
+              <div style="margin-top:12px;font-family:var(--font-mono);font-size:10px;color:var(--muted);line-height:1.65;padding:10px 14px;background:var(--card);border-left:2px solid var(--accent2);border-radius:0 4px 4px 0;">
+                X-axis: Average growth rate between consecutive bills (Bill n vs. Bill n-1)<br>
+                Y-axis: Total customer monetary value (CMV)<br>
+                The X-axis captures purchase volatility — how customers shift between high and low-value purchases over time, uncovering behavioral patterns beyond static spending.
+              </div>
+            </div>
+            <div class="wf-step-connector"></div>
+          </div>
+
+          <div class="wf-step">
+            <div class="step-badge">05</div>
+            <div class="wf-step-body">
+              <div class="wf-step-sub">Output</div>
+              <div class="wf-step-title">Customer Segmentation</div>
+              <div class="wf-step-body-text">5 distinct behavioral groups, each with a tailored engagement strategy.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="slide-pg">03 / 05</div>
+    </div>
+
+    <!-- SLIDE 3 — 5 Customer Groups -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="slide-label">Finding 01</div>
+        <div class="slide-title">5 Customer Groups<br>Identified</div>
+        <div class="slide-sub">Mapped on CMV vs. Avg. Growth on Bill Axes</div>
+        <div class="group-cards">
+
+          <div class="group-card">
+            <div class="gc-stripe" style="background:rgba(74,240,176,.85);"></div>
+            <div class="gc-body">
+              <div class="gc-name" style="color:var(--accent);">Group 1 · Jewelry Lovers</div>
+              <div class="gc-desc">High-value loyal customers who consistently purchase high-ticket items. This group demonstrates strong brand affinity and long-term value.</div>
+              <div class="gc-actions">
+                <div class="gc-action">Best engaged through relationship-focused strategies such as premium loyalty programs or early-access privileges.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="group-card">
+            <div class="gc-stripe" style="background:rgba(59,157,255,.85);"></div>
+            <div class="gc-body">
+              <div class="gc-name" style="color:var(--accent2);">Group 2 · Potential Upscale Group</div>
+              <div class="gc-desc">Customers with more than 4 purchases and a mix of high- and low-value transactions in their first 4–5 bills.</div>
+              <div class="gc-actions">
+                <div class="gc-action">The negative average growth suggests room to shift them into the top-tier group.</div>
+                <div class="gc-action">Ideal for promotional offers, luxury sampling or strategic upselling.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="group-card highlight">
+            <div class="gc-stripe" style="background:rgba(100,120,160,.7);"></div>
+            <div class="gc-body">
+              <div class="gc-name" style="color:#8899bb;">Group 3 · Emerging Segments (most densely populated)</div>
+              <div class="gc-desc">This group splits into two key subgroups based on behavioral patterns.</div>
+              <div class="gc-actions">
+                <div class="gc-action">3.1 Customers with 4+ purchases who alternate between high and low-value bills</div>
+                <div class="gc-action">3.2 Customers with frequent purchases of lower-value items</div>
+                <div class="gc-action">Although their CLV has not yet crossed the bill threshold, short purchase frequency suggests strong brand engagement.</div>
+                <div class="gc-action">May benefit from graduated incentives.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="group-card">
+            <div class="gc-stripe" style="background:rgba(255,107,107,.85);"></div>
+            <div class="gc-body">
+              <div class="gc-name" style="color:#ff6b6b;">Group 4 · Occasional High Spenders</div>
+              <div class="gc-desc">Customers with 4+ bills, starting with a high-value purchase followed by a significant drop.</div>
+              <div class="gc-actions">
+                <div class="gc-action">The negative average growth actually reveals solid purchasing power.</div>
+                <div class="gc-action">Best targeted for reactivation or event-driven marketing campaigns.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="group-card">
+            <div class="gc-stripe" style="background:rgba(255,200,80,.8);"></div>
+            <div class="gc-body">
+              <div class="gc-name" style="color:#ffc850;">Group 5 · One-Time Buyers</div>
+              <div class="gc-desc">Customers with only one transaction. Data profiling shows those who don't return within 2 years are unlikely to return at all.</div>
+              <div class="gc-actions">
+                <div class="gc-action">Best treated as cold leads; however, selective reactivation could be tested for those with a high initial spend.</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="slide-pg">04 / 05</div>
+    </div>
+
+    <!-- SLIDE 4 — Summary -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="slide-label">Summary</div>
+        <div class="slide-title">What This<br>Project Demonstrates</div>
+        <div class="slide-body" style="margin-bottom:24px;">
+          By building a CLV-based segmentation workflow from scratch, I demonstrated the ability to go beyond standard models when they don't fit the data — and design a solution that captures the true behavioral complexity of luxury retail customers.
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:24px;">
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px;text-align:center;">
+            <div style="font-family:var(--font-mono);font-size:26px;font-weight:700;color:var(--accent);">5</div>
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:.08em;">CUSTOMER GROUPS</div>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px;text-align:center;">
+            <div style="font-family:var(--font-mono);font-size:26px;font-weight:700;color:var(--accent2);">CLV</div>
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:.08em;">OVER RFM</div>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px;text-align:center;">
+            <div style="font-family:var(--font-mono);font-size:26px;font-weight:700;color:#ffc850;">5</div>
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:.08em;">STEP WORKFLOW</div>
+          </div>
+        </div>
+
+        <div style="padding:20px 24px;background:var(--card);border:1px solid var(--border);border-radius:4px;">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--accent);letter-spacing:.15em;margin-bottom:10px;">PROJECT TAKEAWAY</div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--muted);line-height:1.7;">
+            Standard segmentation models fail in luxury contexts. By choosing CLV and designing a scatter-based visualization on meaningful axes, I could surface behavioral nuance — turning raw transaction data into a strategic customer roadmap the business could act on.
+          </div>
+          <div class="summary-tags">
+            <span class="sum-tag">Workflow Design</span>
+            <span class="sum-tag">CLV Model</span>
+            <span class="sum-tag">Customer Segmentation</span>
+          </div>
+        </div>
+      </div>
+      <div class="slide-pg">05 / 05</div>
+    </div>
+
+  </div><!-- /deck -->
+</div><!-- /deck3-overlay -->
+
+<button id="deck3-close" onclick="closeDeck3()">✕ CLOSE DECK</button>
+
+<script>
+function openDeck3() {
+  document.getElementById('deck3-overlay').classList.add('open');
+  document.getElementById('deck3-close').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  document.getElementById('deck3-overlay').scrollTop = 0;
+  gsap.fromTo('#deck3-overlay .slide',
+    { opacity: 0, y: 30 },
+    { opacity: 1, y: 0, duration: .5, stagger: .08, ease: 'power2.out', delay: .1 }
+  );
+}
+function closeDeck3() {
+  document.getElementById('deck3-overlay').classList.remove('open');
+  document.getElementById('deck3-close').style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape'){ closeDeck(); closeDeck2(); closeDeck3(); }
+});
+</script>
+
+
+<!-- ============================================================
+     INSIGHT DECK — Special Project · Closed-Loop AgriTech System
+     ============================================================ -->
+<style>
+#deck4-overlay {
+  display:none; position:fixed; inset:0; z-index:1000;
+  background:rgba(2,5,8,0.95); backdrop-filter:blur(8px);
+  overflow-y:auto; overscroll-behavior:contain;
+}
+#deck4-overlay.open { display:block; }
+#deck4-close {
+  position:fixed; top:22px; right:28px; z-index:1100;
+  font-family:var(--font-mono); font-size:11px; letter-spacing:.15em;
+  color:var(--muted); background:var(--card); border:1px solid var(--border);
+  padding:8px 18px; cursor:pointer; transition:color .2s,border-color .2s;
+  display:none;
+}
+#deck4-close:hover { color:var(--accent); border-color:var(--accent); }
+
+/* ── FLOWCHART ── */
+.flowchart { display:flex; flex-direction:column; align-items:center; gap:0; margin-top:24px; }
+
+.fc-node {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:4px; padding:14px 20px; width:100%; max-width:420px;
+  position:relative; text-align:left;
+  transition:border-color .25s, transform .25s;
+}
+.fc-node:hover { border-color:var(--accent); transform:translateX(3px); }
+.fc-node.source  { border-color:rgba(59,157,255,.5); background:rgba(59,157,255,.05); }
+.fc-node.process { border-color:var(--border); }
+.fc-node.derived { border-color:rgba(74,240,176,.35); background:rgba(74,240,176,.03); }
+.fc-node.decision{ border-color:rgba(255,107,107,.4); background:rgba(255,107,107,.04); }
+.fc-node.output  { border-color:rgba(74,240,176,.45); background:rgba(74,240,176,.04); }
+.fc-node.farm    { border-color:rgba(255,200,80,.35); background:rgba(255,200,80,.03); }
+.fc-node.ml      { border-color:rgba(180,120,255,.45); background:rgba(180,120,255,.04); }
+.fc-node.loop    { border-color:rgba(74,240,176,.6); background:rgba(74,240,176,.06); text-align:center; }
+
+.fc-node-tag {
+  font-family:var(--font-mono); font-size:8px; letter-spacing:.18em; text-transform:uppercase;
+  margin-bottom:7px; display:flex; align-items:center; gap:7px;
+}
+.fc-node-tag .dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.fc-node-title { font-size:14px; font-weight:700; letter-spacing:.02em; margin-bottom:6px; }
+.fc-node-body  { font-family:var(--font-mono); font-size:10px; color:var(--muted); line-height:1.65; }
+.fc-node-body ul { list-style:none; }
+.fc-node-body ul li::before { content:'›  '; color:var(--accent); }
+
+/* arrow connector */
+.fc-arrow {
+  display:flex; flex-direction:column; align-items:center;
+  height:32px; position:relative; flex-shrink:0;
+}
+.fc-arrow .fa-line { width:1px; flex:1; background:linear-gradient(to bottom,var(--border),var(--accent)); }
+.fc-arrow .fa-head {
+  width:0; height:0;
+  border-left:5px solid transparent; border-right:5px solid transparent;
+  border-top:7px solid var(--accent);
+}
+/* side annotation */
+.fc-annot {
+  position:absolute; right:calc(100% + 12px); top:50%; transform:translateY(-50%);
+  font-family:var(--font-mono); font-size:9px; color:var(--accent); line-height:1.5;
+  width:160px; text-align:right; opacity:.75;
+}
+.fc-annot.right {
+  right:auto; left:calc(100% + 12px); text-align:left;
+}
+
+/* decision states row */
+.decision-states { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+.ds-item { display:flex; align-items:center; gap:8px; padding:8px 10px; background:var(--surface); border-radius:2px; }
+.ds-dot  { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.ds-text { font-family:var(--font-mono); font-size:10px; color:var(--muted); line-height:1.4; }
+.ds-text strong { display:block; color:var(--text); }
+
+/* loop badge */
+.loop-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:var(--font-mono); font-size:11px; color:var(--accent);
+  letter-spacing:.12em;
+}
+.loop-icon { font-size:20px; animation:spin 4s linear infinite; }
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+/* API sources */
+.api-pills { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.api-pill {
+  font-family:var(--font-mono); font-size:9px; letter-spacing:.1em;
+  border:1px solid var(--border); padding:3px 10px; border-radius:2px;
+  color:var(--accent2); text-transform:uppercase;
+}
+
+/* outputs block */
+.outputs-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+.out-chip {
+  font-family:var(--font-mono); font-size:9px; letter-spacing:.1em;
+  background:rgba(74,240,176,.08); border:1px solid rgba(74,240,176,.2);
+  padding:3px 10px; border-radius:2px; color:var(--accent);
+}
+
+/* ml learn items */
+.ml-items { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+.ml-item { display:flex; align-items:flex-start; gap:8px; font-family:var(--font-mono); font-size:10px; color:var(--muted); line-height:1.5; }
+.ml-item::before { content:'⬡'; color:#b478ff; flex-shrink:0; }
+
+@media(max-width:640px){
+  .fc-annot { display:none; }
+  .decision-states { grid-template-columns:1fr; }
+}
+</style>
+
+<div id="deck4-overlay">
+  <div class="deck">
+
+    <!-- SLIDE 0 — Cover -->
+    <div class="slide slide-cover">
+      <div class="slide-inner">
+        <div class="cover-icon">🌾</div>
+        <div class="cover-title">Closed-Loop<br>Agricultural<br>Decision System</div>
+        <div class="cover-role">SPECIAL PROJECT · AI SYSTEM DESIGN · OCT 2025</div>
+        <div class="cover-divider"></div>
+        <div class="cover-desc">A self-improving fertiliser timing system that integrates weather APIs, soil moisture inference, and machine learning — continuously learning from real farm outcomes.</div>
+      </div>
+      <div class="slide-pg">01 / 04</div>
+    </div>
+
+    <!-- SLIDE 1 — Brief -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="slide-label">Context</div>
+        <div class="slide-title">The System Brief</div>
+        <div class="slide-sub">Closed-Loop Agricultural Decision System</div>
+        <div class="slide-body" style="margin-bottom:24px;">
+          This project explores a closed-loop agricultural decision system designed to optimise fertiliser timing using environmental data. By integrating weather forecasting, soil moisture inference, and feedback from real farm outcomes, the system continuously learns and improves its recommendations — aiming to reduce fertiliser loss and increase crop productivity.
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px;">
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:.12em;margin-bottom:8px;">CORE PROBLEM</div>
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text);line-height:1.6;">Fertiliser applied at the wrong time — before rain or drought — leads to significant waste and yield loss</div>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px;">
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:.12em;margin-bottom:8px;">APPROACH</div>
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text);line-height:1.6;">Rule-based decision engine driven by weather + soil data, with an ML feedback loop that learns from actual yield outcomes</div>
+          </div>
+          <div style="background:var(--card);border:1px solid rgba(74,240,176,.2);border-radius:4px;padding:16px;">
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--accent);letter-spacing:.12em;margin-bottom:8px;">KEY INNOVATION</div>
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text);line-height:1.6;">The loop — farm outcomes feed back into ML training, making the system smarter with every harvest cycle</div>
+          </div>
+          <div style="background:var(--card);border:1px solid rgba(180,120,255,.2);border-radius:4px;padding:16px;">
+            <div style="font-family:var(--font-mono);font-size:9px;color:#b478ff;letter-spacing:.12em;margin-bottom:8px;">SYSTEM TYPE</div>
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text);line-height:1.6;">Closed-loop · Rule-based + ML hybrid · Real-time environmental data integration</div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-pg">02 / 04</div>
+    </div>
+
+    <!-- SLIDE 2 — Full Flowchart -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="slide-label">Architecture</div>
+        <div class="slide-title">Smart Fertiliser<br>Decision System</div>
+        <div class="slide-sub">End-to-end system flow — from data ingestion to ML feedback loop</div>
+
+        <div class="flowchart">
+
+          <!-- 1. Weather APIs -->
+          <div class="fc-node source">
+            <div class="fc-node-tag"><div class="dot" style="background:#3b9dff"></div><span style="color:#3b9dff">Data Source</span></div>
+            <div class="fc-node-title">Weather APIs (Forecast + Historical)</div>
+            <div class="fc-node-body">
+              <ul>
+                <li>Rainfall</li><li>Temperature</li><li>Humidity</li>
+                <li>Wind speed</li><li>Solar radiation</li>
+              </ul>
+              <div class="api-pills" style="margin-top:8px;">
+                <span class="api-pill">VisualCrossing</span>
+                <span class="api-pill">NOAA</span>
+                <span class="api-pill">ECMWF</span>
+                <span class="api-pill">OpenWeather</span>
+                <span class="api-pill">Tomorrow.io</span>
+              </div>
+            </div>
+          </div>
+          <div class="fc-arrow"><div class="fa-line"></div><div class="fa-head"></div></div>
+
+          <!-- 2. Data Ingestion -->
+          <div class="fc-node process" style="position:relative;">
+            <div class="fc-annot right">Collect data from API<br>Schedule daily update</div>
+            <div class="fc-node-tag"><div class="dot" style="background:var(--muted)"></div><span style="color:var(--muted)">Ingestion</span></div>
+            <div class="fc-node-title">Data Ingestion</div>
+            <div class="fc-node-body">Collect data from API endpoints. Schedule daily updates to maintain forecast accuracy.</div>
+          </div>
+          <div class="fc-arrow"><div class="fa-line"></div><div class="fa-head"></div></div>
+
+          <!-- 3. Data Processing -->
+          <div class="fc-node process">
+            <div class="fc-node-tag"><div class="dot" style="background:var(--muted)"></div><span style="color:var(--muted)">Processing</span></div>
+            <div class="fc-node-title">Data Processing</div>
+            <div class="fc-node-body">
+              <ul>
+                <li>Unit conversion</li>
+                <li>Missing-value filling</li>
+                <li>Rain window calculation</li>
+              </ul>
+              <div class="outputs-row">
+                <span class="out-chip">Rain_last_2_days</span>
+                <span class="out-chip">Rain_last_3_days</span>
+                <span class="out-chip">Rain_next_48h</span>
+              </div>
+            </div>
+          </div>
+          <div class="fc-arrow"><div class="fa-line"></div><div class="fa-head"></div></div>
+
+          <!-- 4. Derived Indicators -->
+          <div class="fc-node derived">
+            <div class="fc-annot">SMI (Soil Moisture Index)<br>= f(Rain_last_2, Rain_last_3,<br>ET_proxy, cumulative)</div>
+            <div class="fc-node-tag"><div class="dot" style="background:var(--accent)"></div><span style="color:var(--accent)">Inference</span></div>
+            <div class="fc-node-title">Derived Indicators</div>
+            <div class="fc-node-body">
+              <ul>
+                <li>ET proxy calculation (Evapotranspiration)</li>
+                <li>Soil Moisture Index (SMI) via rolling window</li>
+                <li>Rain window flags</li>
+              </ul>
+            </div>
+          </div>
+          <div class="fc-arrow"><div class="fa-line"></div><div class="fa-head"></div></div>
+
+          <!-- 5. Decision Engine -->
+          <div class="fc-node decision">
+            <div class="fc-annot right" style="width:180px;font-size:8px;line-height:1.5;color:var(--muted);">
+              <strong style="color:var(--text)">Golden:</strong> SMI low, no rain 48h, temp OK<br>
+              <strong style="color:var(--text)">Good:</strong> SMI medium, rain &lt;5mm<br>
+              <strong style="color:var(--text)">Risky:</strong> SMI high or rain &gt;5mm 48h<br>
+              <strong style="color:var(--text)">Avoid:</strong> SMI very high, rain &gt;10mm
+            </div>
+            <div class="fc-node-tag"><div class="dot" style="background:#ff6b6b"></div><span style="color:#ff6b6b">Decision Engine (Rule-Based)</span></div>
+            <div class="fc-node-title">Evaluate Conditions →</div>
+            <div class="decision-states">
+              <div class="ds-item"><div class="ds-dot" style="background:#ff4757;box-shadow:0 0 6px #ff4757"></div><div class="ds-text"><strong>AVOID</strong>High fertiliser loss risk</div></div>
+              <div class="ds-item"><div class="ds-dot" style="background:var(--accent);box-shadow:0 0 6px var(--accent)"></div><div class="ds-text"><strong>GOLDEN</strong>Optimal — apply now</div></div>
+              <div class="ds-item"><div class="ds-dot" style="background:#3b9dff;box-shadow:0 0 6px #3b9dff"></div><div class="ds-text"><strong>GOOD</strong>Suitable window</div></div>
+              <div class="ds-item"><div class="ds-dot" style="background:#ffc850;box-shadow:0 0 6px #ffc850"></div><div class="ds-text"><strong>RISKY</strong>Proceed with caution</div></div>
+            </div>
+          </div>
+          <div class="fc-arrow"><div class="fa-line"></div><div class="fa-head"></div></div>
+
+          <!-- 6. Recommendation System -->
+          <div class="fc-node output">
+            <div class="fc-node-tag"><div class="dot" style="background:var(--accent)"></div><span style="color:var(--accent)">Output</span></div>
+            <div class="fc-node-title">Recommendation System</div>
+            <div class="fc-node-body">
+              Output to farmer:
+              <ul>
+                <li>Golden week alert</li>
+                <li>Good-time suggestion</li>
+                <li>Risk warning</li>
+                <li>Avoid fertiliser notice</li>
+              </ul>
+            </div>
+          </div>
+          <div class="fc-arrow"><div class="fa-line"></div><div class="fa-head"></div></div>
+
+          <!-- 7. Farmer Action -->
+          <div class="fc-node farm">
+            <div class="fc-node-tag"><div class="dot" style="background:#ffc850"></div><span style="color:#ffc850">Human Action</span></div>
+            <div class="fc-node-title">Farmer Action</div>
+            <div class="fc-node-body">Farmer applies fertiliser based on recommendation received from the system.</div>
+          </div>
+          <div class="fc-arrow"><div class="fa-line"></div><div class="fa-head"></div></div>
+
+          <!-- 8. Farm Data Collection -->
+          <div class="fc-node farm">
+            <div class="fc-annot" style="font-size:8px;color:var(--muted);line-height:1.5;">1st phase from data<br><br>2nd phase<br>collect from field</div>
+            <div class="fc-node-tag"><div class="dot" style="background:#ffc850"></div><span style="color:#ffc850">Collection</span></div>
+            <div class="fc-node-title">Farm Data Collection</div>
+            <div class="fc-node-body">
+              Farmer inputs:
+              <ul>
+                <li>Fertiliser amount</li>
+                <li>Date of application</li>
+                <li>Monthly yield</li>
+                <li>Harvest quantity</li>
+              </ul>
+            </div>
+          </div>
+          <div class="fc-arrow"><div class="fa-line"></div><div class="fa-head"></div></div>
+
+          <!-- 9. Performance Analysis -->
+          <div class="fc-node process">
+            <div class="fc-node-tag"><div class="dot" style="background:var(--muted)"></div><span style="color:var(--muted)">Analysis</span></div>
+            <div class="fc-node-title">Performance Analysis</div>
+            <div class="fc-node-body">
+              Compare:
+              <ul>
+                <li>Weather conditions at time of application</li>
+                <li>Fertiliser timing chosen</li>
+                <li>Yield outcome achieved</li>
+              </ul>
+            </div>
+          </div>
+          <div class="fc-arrow"><div class="fa-line"></div><div class="fa-head"></div></div>
+
+          <!-- 10. ML Training -->
+          <div class="fc-node ml">
+            <div class="fc-node-tag"><div class="dot" style="background:#b478ff"></div><span style="color:#b478ff">Machine Learning Training</span></div>
+            <div class="fc-node-title">ML Training Loop</div>
+            <div class="fc-node-body">
+              <div class="ml-items">
+                <div class="ml-item">Learn relationships between: <strong style="color:var(--text)">Weather + Timing → Yield</strong></div>
+                <div class="ml-item">Identify better fertiliser timing windows from historical outcomes</div>
+              </div>
+            </div>
+          </div>
+          <div class="fc-arrow"><div class="fa-line"></div><div class="fa-head"></div></div>
+
+          <!-- 11. Model Optimisation -->
+          <div class="fc-node ml">
+            <div class="fc-node-tag"><div class="dot" style="background:#b478ff"></div><span style="color:#b478ff">Optimisation</span></div>
+            <div class="fc-node-title">Model Optimisation</div>
+            <div class="fc-node-body">
+              Adjust thresholds:
+              <ul>
+                <li>SMI ranges</li>
+                <li>ET ranges</li>
+                <li>Rain windows</li>
+              </ul>
+            </div>
+          </div>
+          <div class="fc-arrow"><div class="fa-line"></div><div class="fa-head"></div></div>
+
+          <!-- 12. Loop back -->
+          <div class="fc-node loop">
+            <div class="loop-badge">
+              <span class="loop-icon">↻</span>
+              LOOP BACK TO DECISION ENGINE
+            </div>
+          </div>
+
+        </div><!-- /flowchart -->
+      </div>
+      <div class="slide-pg">03 / 04</div>
+    </div>
+
+    <!-- SLIDE 3 — Summary -->
+    <div class="slide">
+      <div class="slide-inner">
+        <div class="slide-label">Summary</div>
+        <div class="slide-title">What This System<br>Demonstrates</div>
+        <div class="slide-body" style="margin-bottom:24px;">
+          This system represents a complete AI-driven product design — from real-time data ingestion through rule-based decisions to a self-improving ML loop grounded in actual farm outcomes. It shows how data, logic, and machine learning can be combined into a practical tool that gets smarter over time.
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;">
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px;text-align:center;">
+            <div style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--accent);">10</div>
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:.08em;">SYSTEM NODES</div>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px;text-align:center;">
+            <div style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:#3b9dff;">4</div>
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:.08em;">DECISION STATES</div>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px;text-align:center;">
+            <div style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:#b478ff;">ML</div>
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:.08em;">FEEDBACK LOOP</div>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px;text-align:center;">
+            <div style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:#ffc850);">∞</div>
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:.08em;">SELF-IMPROVING</div>
+          </div>
+        </div>
+
+        <div style="padding:20px 24px;background:var(--card);border:1px solid var(--border);border-radius:4px;">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--accent);letter-spacing:.15em;margin-bottom:10px;">PROJECT TAKEAWAY</div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--muted);line-height:1.7;">
+            By designing this system end-to-end, I demonstrate the ability to think in systems — connecting data sources, inference logic, decision rules, human-in-the-loop inputs, and ML retraining into a coherent, scalable architecture. This is the kind of thinking I want to deepen through an MSc in AI &amp; Innovation.
+          </div>
+          <div class="summary-tags">
+            <span class="sum-tag">AI System Design</span>
+            <span class="sum-tag">Closed-Loop ML</span>
+            <span class="sum-tag">AgriTech</span>
+            <span class="sum-tag">Rule Engine</span>
+          </div>
+        </div>
+      </div>
+      <div class="slide-pg">04 / 04</div>
+    </div>
+
+  </div><!-- /deck -->
+</div><!-- /deck4-overlay -->
+
+<button id="deck4-close" onclick="closeDeck4()">✕ CLOSE DECK</button>
+
+<script>
+function openDeck4() {
+  document.getElementById('deck4-overlay').classList.add('open');
+  document.getElementById('deck4-close').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  document.getElementById('deck4-overlay').scrollTop = 0;
+  gsap.fromTo('#deck4-overlay .slide',
+    { opacity: 0, y: 30 },
+    { opacity: 1, y: 0, duration: .5, stagger: .08, ease: 'power2.out', delay: .1 }
+  );
+  gsap.fromTo('#deck4-overlay .fc-node',
+    { opacity: 0, x: -16 },
+    { opacity: 1, x: 0, duration: .4, stagger: .06, ease: 'power2.out', delay: .4 }
+  );
+}
+function closeDeck4() {
+  document.getElementById('deck4-overlay').classList.remove('open');
+  document.getElementById('deck4-close').style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape'){ closeDeck(); closeDeck2(); closeDeck3(); closeDeck4(); }
+});
+</script>
+
 </body>
 </html>
