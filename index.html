@@ -368,12 +368,24 @@
   }
 
   /* SKILLS BARS */
-  .skills-section { margin-top: 48px; }
-  .skill-row { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
-  .skill-name { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; width: 120px; flex-shrink: 0; color: var(--muted); }
-  .skill-bar-bg { flex: 1; height: 4px; background: var(--card); border-radius: 2px; overflow: hidden; }
-  .skill-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); width: 0; transition: width 1.2s cubic-bezier(.16,1,.3,1); }
-  .skill-pct { font-family: var(--font-mono); font-size: 10px; color: var(--accent); width: 32px; text-align: right; flex-shrink: 0; }
+  /* Tools grid */
+  .tools-section { margin-top: 40px; display: flex; flex-direction: column; gap: 20px; }
+  .tools-group-label {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .tools-group-label::after { content: ''; display: block; flex: 1; max-width: 32px; height: 1px; background: var(--accent); opacity: .4; }
+  .tools-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .tool-chip {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em;
+    padding: 5px 12px; border-radius: 2px;
+    border: 1px solid var(--border); color: var(--muted);
+    background: var(--card);
+    transition: border-color .2s, color .2s, background .2s;
+    cursor: default;
+  }
+  .tool-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--glow); }
 
   /* RESPONSIVE */
   @media (max-width: 768px) {
@@ -463,6 +475,18 @@
               <span class="tool-chip">API Integration</span>
               <span class="tool-chip">Feedback Loops</span>
             </div>
+          </div>
+          <div class="tools-group">
+            <div class="tools-group-label">Domain Expertise</div>
+            <div class="tools-chips">
+              <span class="tool-chip">Market Intelligence</span>
+              <span class="tool-chip">Consumer Insight</span>
+              <span class="tool-chip">OOH Media</span>
+              <span class="tool-chip">AgriTech</span>
+              <span class="tool-chip">Luxury Retail</span>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="about-visual-wrap reveal">
         <canvas id="about-canvas"></canvas>
@@ -473,7 +497,7 @@
             <div class="stat-label">Major Projects</div>
           </div>
           <div class="stat-card">
-            <div class="stat-num">100K+</div>
+            <div class="stat-num">5K+</div>
             <div class="stat-label">Rows Analyzed</div>
           </div>
           <div class="stat-card">
@@ -1183,18 +1207,6 @@ gsap.utils.toArray('.reveal').forEach(el => {
       scrollTrigger: { trigger: el, start: 'top 85%', once: true }
     }
   );
-});
-
-// Skill bars
-ScrollTrigger.create({
-  trigger: '.skills-section',
-  start: 'top 80%',
-  once: true,
-  onEnter: () => {
-    document.querySelectorAll('.skill-bar-fill').forEach(bar => {
-      bar.style.width = bar.dataset.pct + '%';
-    });
-  }
 });
 
 // Timeline progress
