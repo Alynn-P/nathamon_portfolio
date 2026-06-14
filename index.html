@@ -401,6 +401,77 @@
     footer { flex-direction: column; gap: 12px; text-align: center; }
     .projects-header { flex-direction: column; gap: 16px; align-items: flex-start; }
   }
+
+
+  /* ── HERO: AgriTech CTA button ── */
+  .btn-agritech {
+    border: 1px solid rgba(74,240,176,0.4); color: var(--accent);
+    background: rgba(74,240,176,0.06); font-weight: 600;
+    position: relative; overflow: hidden;
+  }
+  .btn-agritech::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(74,240,176,0.08), transparent);
+    transform: translateX(-100%); transition: transform .5s;
+  }
+  .btn-agritech:hover::before { transform: translateX(100%); }
+  .btn-agritech:hover { border-color: var(--accent); background: rgba(74,240,176,0.12); transform: translateY(-2px); box-shadow: 0 0 20px rgba(74,240,176,0.2); }
+
+  /* ── TIMELINE: scroll arrows + hint ── */
+  .tl-scroll-hint {
+    display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+    margin-top: 14px; margin-bottom: 0;
+  }
+  .tl-scroll-label {
+    font-family: var(--font-mono); font-size: 9px; color: var(--muted);
+    letter-spacing: .18em; text-transform: uppercase;
+  }
+  .tl-arrow {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--card);
+    color: var(--accent); font-size: 18px; line-height: 1;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: border-color .2s, background .2s, transform .15s;
+    font-family: var(--font-mono);
+  }
+  .tl-arrow:hover { border-color: var(--accent); background: var(--glow); transform: scale(1.1); }
+  .tl-arrow:active { transform: scale(.95); }
+  @keyframes arrowPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.9)} }
+  .tl-arrow-right { animation: arrowPulse 2s ease-in-out 2s 3; }
+
+  /* ── PROJECT CTA buttons ── */
+  .proj-cta-row { margin-top: 20px; }
+  .proj-cta-btn {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px; border-radius: 4px;
+    border: 1px solid var(--border); background: var(--surface);
+    text-decoration: none; color: var(--text);
+    transition: border-color .25s, background .25s, transform .2s, box-shadow .25s;
+    width: 100%;
+  }
+  .proj-cta-btn:hover {
+    border-color: var(--accent2); background: rgba(59,157,255,.06);
+    transform: translateX(4px);
+    box-shadow: -3px 0 0 var(--accent2);
+  }
+  .proj-cta-btn--accent { border-color: rgba(74,240,176,.3); background: rgba(74,240,176,.04); }
+  .proj-cta-btn--accent:hover { border-color: var(--accent); background: rgba(74,240,176,.08); box-shadow: -3px 0 0 var(--accent); }
+  .pcta-icon { font-size: 20px; flex-shrink: 0; width: 28px; text-align: center; }
+  .pcta-text { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+  .pcta-label {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--text); font-weight: 600;
+  }
+  .pcta-hint {
+    font-family: var(--font-mono); font-size: 9px; color: var(--muted);
+    letter-spacing: .08em;
+  }
+  .pcta-arrow {
+    font-size: 20px; color: var(--muted);
+    transition: color .2s, transform .2s; flex-shrink: 0;
+  }
+  .proj-cta-btn:hover .pcta-arrow { color: var(--accent2); transform: translateX(4px); }
+  .proj-cta-btn--accent:hover .pcta-arrow { color: var(--accent); }
 </style>
 </head>
 <body>
@@ -432,6 +503,7 @@
   <div class="hero-cta">
     <a href="#projects" class="btn btn-primary">Explore Projects</a>
     <a href="#about" class="btn btn-outline">About Me</a>
+    <a href="#" onclick="document.getElementById('proj4').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{document.getElementById('proj4').style.boxShadow='0 0 0 2px var(--accent)';setTimeout(()=>document.getElementById('proj4').style.boxShadow='',1800)},600);return false;" class="btn btn-agritech">🌾 AgriTech AI System</a>
   </div>
   <div class="scroll-hint">
     <span>SCROLL</span>
@@ -493,7 +565,6 @@
       </div>
       <div class="about-visual-wrap reveal">
         <canvas id="about-canvas"></canvas>
-        <span class="about-caption"></span>
         <div class="about-stats">
           <div class="stat-card">
             <div class="stat-num">3+</div>
@@ -559,7 +630,7 @@
     <div class="timeline-wrap reveal" id="timeline-wrap">
       <div class="timeline-line"></div>
       <div class="timeline-progress" id="timeline-progress"></div>
-      <div class="timeline-items">
+      <div class="timeline-items" id="timeline-items-scroll">
         <div class="t-item active">
           <div class="t-date">MAR 2023</div>
           <div class="t-dot"></div>
@@ -610,6 +681,11 @@
           <div class="certbadge certbadge-btn" onclick="scrollToProject('proj4')">PROJECT ↓</div>
         </div>
       </div>
+      <div class="tl-scroll-hint">
+        <button class="tl-arrow tl-arrow-left" onclick="scrollTimeline(-1)" aria-label="Scroll left">‹</button>
+        <span class="tl-scroll-label">SCROLL TIMELINE</span>
+        <button class="tl-arrow tl-arrow-right" onclick="scrollTimeline(1)" aria-label="Scroll right">›</button>
+      </div>
     </div>
   </div>
 </section>
@@ -644,7 +720,13 @@
               <span class="tag">Business Strategy</span>
             </div>
           </div>
-          <a href="#" class="proj-link" onclick="openDeck();return false;">View Insight Deck →</a>
+          <div class="proj-cta-row">
+            <a href="#" class="proj-cta-btn" onclick="openDeck();return false;">
+              <span class="pcta-icon">📋</span>
+              <span class="pcta-text"><span class="pcta-label">VIEW INSIGHT DECK</span><span class="pcta-hint">Full analysis · 6 slides</span></span>
+              <span class="pcta-arrow">›</span>
+            </a>
+          </div>
         </div>
         <div class="proj-visual">
           <canvas id="proj1-canvas"></canvas>
@@ -671,7 +753,13 @@
               <span class="tag">Q4 Planning</span>
             </div>
           </div>
-          <a href="#" class="proj-link" onclick="openDeck2();return false;">View Dashboard →</a>
+          <div class="proj-cta-row">
+            <a href="#" class="proj-cta-btn" onclick="openDeck2();return false;">
+              <span class="pcta-icon">📊</span>
+              <span class="pcta-text"><span class="pcta-label">VIEW DASHBOARD</span><span class="pcta-hint">Full analysis · 6 slides</span></span>
+              <span class="pcta-arrow">›</span>
+            </a>
+          </div>
         </div>
         <div class="proj-visual">
           <canvas id="proj2-canvas"></canvas>
@@ -698,7 +786,13 @@
               <span class="tag">Luxury Retail</span>
             </div>
           </div>
-          <a href="#" class="proj-link" onclick="openDeck3();return false;">View Workflow →</a>
+          <div class="proj-cta-row">
+            <a href="#" class="proj-cta-btn" onclick="openDeck3();return false;">
+              <span class="pcta-icon">⬡</span>
+              <span class="pcta-text"><span class="pcta-label">VIEW WORKFLOW</span><span class="pcta-hint">5-step methodology · Scatter chart</span></span>
+              <span class="pcta-arrow">›</span>
+            </a>
+          </div>
         </div>
         <div class="proj-visual">
           <canvas id="proj3-canvas"></canvas>
@@ -733,7 +827,13 @@
               🔴 AVOID — high loss risk
             </div>
           </div>
-          <a href="#" class="proj-link" style="margin-top:20px;" onclick="openDeck4();return false;">Explore System →</a>
+          <div class="proj-cta-row" style="margin-top:20px;">
+            <a href="#" class="proj-cta-btn proj-cta-btn--accent" onclick="openDeck4();return false;">
+              <span class="pcta-icon">🌾</span>
+              <span class="pcta-text"><span class="pcta-label">EXPLORE THE SYSTEM</span><span class="pcta-hint">Full architecture · 4 slides</span></span>
+              <span class="pcta-arrow">›</span>
+            </a>
+          </div>
         </div>
         <div class="proj-visual" style="background:#040810;">
           <canvas id="proj4-canvas"></canvas>
@@ -3105,6 +3205,25 @@ document.addEventListener('keydown', e => {
     document.body.style.overflow = '';
   }
 });
+</script>
+
+<script>
+function scrollTimeline(dir) {
+  const el = document.getElementById('timeline-items-scroll');
+  if (!el) return;
+  el.scrollBy({ left: dir * 300, behavior: 'smooth' });
+}
+// Update arrow visibility based on scroll position
+(function() {
+  const el = document.getElementById('timeline-items-scroll');
+  if (!el) return;
+  el.addEventListener('scroll', function() {
+    const leftBtn = document.querySelector('.tl-arrow-left');
+    const rightBtn = document.querySelector('.tl-arrow-right');
+    if (leftBtn) leftBtn.style.opacity = el.scrollLeft > 10 ? '1' : '0.35';
+    if (rightBtn) rightBtn.style.opacity = el.scrollLeft < el.scrollWidth - el.clientWidth - 10 ? '1' : '0.35';
+  });
+})();
 </script>
 </body>
 </html>
