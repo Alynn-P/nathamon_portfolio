@@ -2649,11 +2649,56 @@ document.addEventListener('keydown', e => {
 }
 
 /* decision states row */
-.decision-states { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
-.ds-item { display:flex; align-items:center; gap:8px; padding:8px 10px; background:var(--surface); border-radius:2px; }
-.ds-dot  { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-.ds-text { font-family:var(--font-mono); font-size:10px; color:var(--muted); line-height:1.4; }
-.ds-text strong { display:block; color:var(--text); }
+.decision-states {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.ds-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 10px;
+  background: var(--surface);
+  border-radius: 2px;
+  min-height: 130px;
+}
+
+.ds-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.ds-text {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.ds-text strong {
+  display: block;
+  color: var(--text);
+  font-size: 11px;
+  margin-bottom: 5px;
+}
+
+.ds-condition {
+  display: block;
+  margin-top: 5px;
+}
+
+.ds-action {
+  display: block;
+  margin-top: 6px;
+  color: var(--accent);
+  font-weight: 700;
+}
 
 /* loop badge */
 .loop-badge {
@@ -2820,11 +2865,79 @@ document.addEventListener('keydown', e => {
             <div class="fc-node-tag"><div class="dot" style="background:#ff6b6b"></div><span style="color:#ff6b6b">Decision Engine (Rule-Based)</span></div>
             <div class="fc-node-title">Evaluate Conditions →</div>
             <div class="decision-states">
-              <div class="ds-item"><div class="ds-dot" style="background:#ff4757;box-shadow:0 0 6px #ff4757"></div><div class="ds-text"><strong>AVOID</strong>High fertiliser loss risk</div></div>
-              <div class="ds-item"><div class="ds-dot" style="background:var(--accent);box-shadow:0 0 6px var(--accent)"></div><div class="ds-text"><strong>GOLDEN</strong>Optimal — apply now</div></div>
-              <div class="ds-item"><div class="ds-dot" style="background:#3b9dff;box-shadow:0 0 6px #3b9dff"></div><div class="ds-text"><strong>GOOD</strong>Suitable window</div></div>
-              <div class="ds-item"><div class="ds-dot" style="background:#ffc850;box-shadow:0 0 6px #ffc850"></div><div class="ds-text"><strong>RISKY</strong>Proceed with caution</div></div>
-            </div>
+
+  <!-- AVOID -->
+  <div class="ds-item">
+    <div class="ds-dot" style="background:#ff4757;box-shadow:0 0 6px #ff4757"></div>
+    <div class="ds-text">
+      <strong>AVOID</strong>
+      High fertiliser loss risk
+
+      <span class="ds-condition">
+        Rain_last_3_days > 20 mm
+        <br>OR SMI < -5
+        <br>OR SMI > 15
+        <br>OR Rain_next_48h > 40 mm
+      </span>
+
+      <span class="ds-action">THEN: Do not apply</span>
+    </div>
+  </div>
+
+  <!-- GOLDEN -->
+  <div class="ds-item">
+    <div class="ds-dot" style="background:var(--accent);box-shadow:0 0 6px var(--accent)"></div>
+    <div class="ds-text">
+      <strong>GOLDEN</strong>
+      Optimal — apply now
+
+      <span class="ds-condition">
+        Rain_last_2_days < 3 mm
+        <br>AND SMI: 2–12
+        <br>AND ETproxy: 0.15–0.35
+        <br>AND Rain_next_48h: 8–35 mm
+      </span>
+
+      <span class="ds-action">THEN: Suggest fertiliser</span>
+    </div>
+  </div>
+
+  <!-- GOOD -->
+  <div class="ds-item">
+    <div class="ds-dot" style="background:#3b9dff;box-shadow:0 0 6px #3b9dff"></div>
+    <div class="ds-text">
+      <strong>GOOD</strong>
+      Suitable window
+
+      <span class="ds-condition">
+        Rain_last_2_days < 3 mm
+        <br>AND SMI: 0–12
+        <br>AND ETproxy: 0.15–0.35
+        <br>AND Rain_next_48h: 8–35 mm
+      </span>
+
+      <span class="ds-action">THEN: Suggest fertiliser</span>
+    </div>
+  </div>
+
+  <!-- RISKY -->
+  <div class="ds-item">
+    <div class="ds-dot" style="background:#ffc850;box-shadow:0 0 6px #ffc850"></div>
+    <div class="ds-text">
+      <strong>RISKY</strong>
+      Proceed with caution
+
+      <span class="ds-condition">
+        Rain_last_2_days < 5 mm
+        <br>AND SMI: -5 to 2
+        <br>AND Rain_next_48h < 35 mm
+      </span>
+
+      <span class="ds-action">THEN: Suggest with caution</span>
+    </div>
+  </div>
+
+</div>
           </div>
           <div class="fc-arrow"><div class="fa-line"></div><div class="fa-head"></div></div>
 
