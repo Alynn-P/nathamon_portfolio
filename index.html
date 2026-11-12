@@ -2626,6 +2626,50 @@ document.addEventListener('keydown', e => {
 .fc-node-body  { font-family:var(--font-mono); font-size:10px; color:var(--muted); line-height:1.65; }
 .fc-node-body ul { list-style:none; }
 .fc-node-body ul li::before { content:'›  '; color:var(--accent); }
+/* Derived indicator formulas */
+.derived-formula {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(74,240,176,.04);
+  border: 1px solid rgba(74,240,176,.22);
+  border-radius: 3px;
+}
+
+.derived-formula-label {
+  color: #ff4757;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.derived-formula-title {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  margin-bottom: 8px;
+}
+
+.derived-formula-equation {
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+
+.derived-formula-equation .formula-green {
+  color: var(--accent);
+}
+
+.derived-formula-note {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  line-height: 1.6;
+  margin-top: 7px;
+}
 
 /* arrow connector */
 .fc-arrow {
@@ -2845,12 +2889,78 @@ document.addEventListener('keydown', e => {
             <div class="fc-node-tag"><div class="dot" style="background:var(--accent)"></div><span style="color:var(--accent)">Inference</span></div>
             <div class="fc-node-title">Derived Indicators</div>
             <div class="fc-node-body">
-              <ul>
-                <li>ET proxy calculation (Evapotranspiration)</li>
-                <li>Soil Moisture Index (SMI) via rolling window</li>
-                <li>Rain window flags</li>
-              </ul>
+
+              <!-- ET PROXY FORMULA -->
+              <div>
+                <ul>
+                  <li>ET proxy calculation (Evapotranspiration)</li>
+                </ul>
+
+                <div class="derived-formula-label">Formula</div>
+
+                <div class="derived-formula">
+                  <div class="derived-formula-title">
+                    ET<sub>PROXY</sub> FORMULA
+                  </div>
+
+                <div class="derived-formula-equation">
+                  ET<sub class="formula-green">proxy</sub> =
+                  (0.5 × Temp) + (0.3 × Wind)
+                  <br>
+                  + (0.2 × Solar) − (0.4 × Humidity)
+                </div>
+              </div>
             </div>
+
+  <!-- SMI FORMULA -->
+  <div style="margin-top:14px;">
+    <ul>
+      <li>Soil Moisture Index (SMI) via rolling window</li>
+    </ul>
+
+    <div class="derived-formula-label">Formula</div>
+
+    <div class="derived-formula">
+      <div class="derived-formula-title">
+        SMI FORMULA (7-DAY ROLLING)
+      </div>
+
+      <div class="derived-formula-equation">
+        SMI = Σ<sub class="formula-green">7d</sub>
+        [ Rain<sub class="formula-green">fcst</sub>
+        − (ET<sub class="formula-green">proxy</sub>
+        × Soil<sub class="formula-green">factor</sub>) ]
+      </div>
+    </div>
+  </div>
+
+  <!-- RAIN WINDOW FLAGS -->
+  <div style="margin-top:14px;">
+    <ul>
+      <li>Rain window flags</li>
+    </ul>
+
+    <div class="derived-formula">
+      <div class="derived-formula-title">
+        RAINFALL WINDOWS
+      </div>
+
+      <div class="derived-formula-equation">
+        <span class="formula-green">Rain_last_2_days</span>
+        <br>
+        <span class="formula-green">Rain_last_3_days</span>
+        <br>
+        <span class="formula-green">Rain_next_48h</span>
+      </div>
+
+      <div class="derived-formula-note">
+        Rolling rainfall accumulation and forecast
+        windows used by the decision engine.
+      </div>
+    </div>
+  </div>
+
+</div>
           </div>
           <div class="fc-arrow"><div class="fa-line"></div><div class="fa-head"></div></div>
 
